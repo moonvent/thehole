@@ -1,7 +1,11 @@
+from dataclasses import dataclass, astuple
 from enum import Enum
 import os
+from typing import NamedTuple
+
 import pygame
 
+from logic.game_objects.character._moving import _Moving
 from services.constants import GameConstants
 from services.load_resources import load_image
 
@@ -38,7 +42,8 @@ class _CharacterActions(Enum):
     attack_2 = 'attack2.png'
 
 
-class _Character(pygame.sprite.Sprite):
+class _Character(pygame.sprite.Sprite,
+                 _Moving):
     """
         Character interface
     """
@@ -53,6 +58,9 @@ class _Character(pygame.sprite.Sprite):
         :param folder_name: char name from statics/characters
         :return:
         """
+
+        self._one_step = GameConstants.DefaultStepPixels
+
         for enum_elem in _CharacterActions:
             setattr(self, f'action_{enum_elem.name}', load_image(path_join(folder_name, enum_elem.value))[0])
 
@@ -60,3 +68,11 @@ class _Character(pygame.sprite.Sprite):
         self.image, self.rect = self._default_player_state, self._default_player_state.get_rect()
 
         self.sprite = pygame.sprite.RenderPlain((self,))
+
+    def update(self):
+        self.rect = self.rect.move(astuple(self.next_position))
+        # if self.area.contains(newpos):
+        #     self.rect = newpos
+        pygame.event.pump()
+
+

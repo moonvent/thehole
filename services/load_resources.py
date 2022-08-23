@@ -12,7 +12,6 @@ def load_image(name: str,
 
     fullname = os.path.join(os.path.abspath(os.curdir),
                             Folders.Static.value,
-                            Folders.Characters.value,
                             name)
     image = pg.image.load(fullname)
 
