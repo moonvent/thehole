@@ -41,6 +41,11 @@ class _CharacterActions(Enum):
     attack_1 = 'attack1.png'
     attack_2 = 'attack2.png'
 
+    front_walk_0 = 'switch0.png'
+    front_walk_1 = 'switch1.png'
+
+    side = 'side.png'
+
 
 class _Character(pygame.sprite.Sprite,
                  _Moving):

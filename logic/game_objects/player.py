@@ -1,3 +1,4 @@
+import pygame
 from pygame.event import EventType
 import pygame.locals as pg_consts
 
@@ -10,19 +11,16 @@ class Player(_Character):
         super().__init__()
         self.spawn_point = Position(0, 0)
 
-    def moving(self, event: EventType):
-        if event.type == pg_consts.KEYUP:
-            self.stop()
-
-        else:
-            match event.key:
-                case pg_consts.K_DOWN:
-                    self.move_down()
-                case pg_consts.K_UP:
-                    self.move_up()
-                case pg_consts.K_LEFT:
-                    self.move_left()
-                case pg_consts.K_RIGHT:
-                    self.move_right()
-
+    def moving(self):
+        keys = pygame.key.get_pressed()
+        if keys[pg_consts.K_UP]:
+            self.move_up()
+        if keys[pg_consts.K_DOWN]:
+            self.move_down()
+        if keys[pg_consts.K_LEFT]:
+            self.move_left()
+        if keys[pg_consts.K_RIGHT]:
+            self.move_right()
+        self.update()
+        self.stop()
 

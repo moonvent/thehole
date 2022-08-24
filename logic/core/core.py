@@ -27,6 +27,9 @@ class Core:
 
         while True:
             clock.tick(GameConstants.AmountFps)
+
+            self.player.moving()
+
             self.handle_events()
             self.refresh_screen()
             # if a % 60 == 0:
@@ -37,10 +40,6 @@ class Core:
         for event in pygame.event.get():
             event: EventType = event
 
-            if hasattr(event, 'key') and (event.key in GameConstants.PlayerMovingButtoms):
-                self.player.moving(event=event)
-                return
-
             if event.type == pg_consts.QUIT:
                 return
 
@@ -50,19 +49,10 @@ class Core:
             if event.type == pg_consts.KEYUP:
                 ...
 
-    def refresh_screen(self):
-        # self.screen.blit(self.world.background, (0, 0))
-        #
-        # self.screen.blit(self.world.background,
-        #                  self.world.player.rect,
-        #                  self.world.player.rect,)
-        #
-        # self.world.player.update()
-        # self.world.player.sprite.draw(self.world.background)
-        # pg.display.flip()
-        # pg.display.update((pygame.Rect(0, 0, 200, 200),))
+    def player_events(self):
+        self.player.moving()
 
-        self.world.player.update()
+    def refresh_screen(self):
         self.screen.blit(self.world.background, (0, 0))
         self.screen.blit(self.world.player.image,
                          self.world.player.rect,)

@@ -19,7 +19,7 @@ def load_image(name: str,
     size = (size[0] * scale, size[1] * scale)
     image = pg.transform.scale(image, size)
 
-    image = image.convert()
+    image = image.convert_alpha() if name.endswith('.png') else image.convert()
 
     if colorkey is not None:
         if colorkey == -1:
