@@ -47,8 +47,7 @@ class _CharacterActions(Enum):
     side = 'side.png'
 
 
-class _Character(pygame.sprite.Sprite,
-                 _Moving):
+class _Character(pygame.sprite.Sprite):
     """
         Character interface
     """
@@ -68,6 +67,9 @@ class _Character(pygame.sprite.Sprite,
 
         for enum_elem in _CharacterActions:
             setattr(self, f'action_{enum_elem.name}', load_image(path_join(folder_name, enum_elem.value))[0])
+
+        # для обычного простоя с левой стороны
+        self.action_flip_side = pygame.transform.flip(self.action_side, True, False)
 
         self._default_player_state = self.action_think
         self.image, self.rect = self._default_player_state, self._default_player_state.get_rect()
