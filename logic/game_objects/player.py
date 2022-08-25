@@ -1,20 +1,20 @@
-import pygame
-from pygame.event import EventType
-import pygame.locals as pg_consts
-
-from logic.game_objects.character._character import _Character
-from logic.game_objects.character._map_position import Position
-from logic.game_objects.character._moving import _PlayerMovingMixin
+from logic.game_objects.action import ActionType
+from logic.game_objects.character.character import Character
+from logic.game_objects.position import Position
+from logic.game_objects.character.moving import PlayerMovingMixin, MoveDirection
 
 
-class Player(_Character, _PlayerMovingMixin):
+class Player(Character,
+             PlayerMovingMixin):
     def __init__(self):
         super().__init__()
-        _PlayerMovingMixin.__init__(self)
+        PlayerMovingMixin.__init__(self)
         self.spawn_point = Position(0, 0)
+        self.Direction = MoveDirection.Right
 
-    def moving(self):
-        super(Player, self).moving()
+    def moving(self, action_type: ActionType):
+        super(Player, self).moving(action_type)
         self.update()
-        self.stop(swap_sprite=False)
+        self.stop(swap_sprite=False,
+                  action_type=action_type)
 

@@ -5,7 +5,7 @@ from typing import NamedTuple
 
 import pygame
 
-from logic.game_objects.character._moving import _Moving
+from logic.game_objects.character.moving import _Moving
 from services.constants import GameConstants
 from services.load_resources import load_image
 
@@ -47,7 +47,7 @@ class _CharacterActions(Enum):
     side = 'side.png'
 
 
-class _Character(pygame.sprite.Sprite):
+class Character(pygame.sprite.Sprite):
     """
         Character interface
     """
@@ -78,8 +78,6 @@ class _Character(pygame.sprite.Sprite):
 
     def update(self):
         self.rect = self.rect.move(astuple(self.next_position))
-        # if self.area.contains(newpos):
-        #     self.rect = newpos
         pygame.event.pump()
 
 

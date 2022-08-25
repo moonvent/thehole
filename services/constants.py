@@ -12,6 +12,7 @@ class Files(Enum):
 class Folders(Enum):
     Static = 'static'
     Characters = 'characters'
+    Map = 'map'
 
 
 class _GameConstant:
@@ -58,6 +59,28 @@ class _GameConstant:
     @property
     def PlayerMovingButtoms(self):
         return self._player_moving_buttoms
+
+    _height_map_element: int = 200
+    _width_map_element: int = 128
+
+    @property
+    def HeightMapElement(self):
+        return self._height_map_element
+
+    @property
+    def WidthMapElement(self):
+        return self._width_map_element
+
+    _player_width: int = 96
+    _player_height: int = 128
+
+    @property
+    def PlayerWidth(self):
+        return self._player_width
+
+    @property
+    def PlayerHeight(self):
+        return self._player_height
 
 
 GameConstants = _GameConstant()

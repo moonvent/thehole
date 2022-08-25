@@ -20,18 +20,18 @@ class Core:
         self.screen: Surface = pg.display.set_mode(GameConstants.Size)
         self.world = World(screen=self.screen)
         self.player = self.world.player
+        self.level = self.world.level
 
     def start(self):
         clock = pygame.time.Clock()
-        a = 0
+        # self.level.draw()
 
         while True:
             clock.tick(GameConstants.AmountFps)
 
-            self.player.moving()
-
             self.handle_events()
             self.refresh_screen()
+
             # if a % 60 == 0:
             #     a = 0
             #     pg.display.flip()
@@ -49,11 +49,13 @@ class Core:
             if event.type == pg_consts.KEYUP:
                 ...
 
+        self.player_events()
+
     def player_events(self):
-        self.player.moving()
+        self.player.moving(action_type=self.level.get_current_surface(self.player.rect))
 
     def refresh_screen(self):
-        self.screen.blit(self.world.background, (0, 0))
+        self.level.draw()
         self.screen.blit(self.world.player.image,
                          self.world.player.rect,)
         pg.display.flip()
