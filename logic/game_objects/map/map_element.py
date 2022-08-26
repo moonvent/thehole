@@ -8,7 +8,8 @@ class MapElement(Sprite):
     def __init__(self,
                  x: int,
                  y: int,
-                 image: Surface):
+                 image: Surface,
+                 constant: bool = False):
         super().__init__()
         self.image = image
         self.rect = self.image.get_rect()
@@ -19,12 +20,15 @@ class MapElement(Sprite):
 class MapElementInGame:
     _sprite: Sprite = None
     _action_type: ActionType = None
+    additional_sprites: tuple = None
 
     def __init__(self,
                  sprite: Sprite,
-                 action_type: ActionType):
+                 action_type: ActionType,
+                 additional_sprites: Sprite | tuple[Sprite]):
         self._sprite = sprite
         self._action_type = action_type
+        self.additional_sprites = additional_sprites if isinstance(additional_sprites, tuple) else (additional_sprites,)
 
     @property
     def Sprite(self):

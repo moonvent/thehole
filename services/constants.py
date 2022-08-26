@@ -15,6 +15,10 @@ class Folders(Enum):
     Map = 'map'
 
 
+class _Colors:
+    LightGreen = (46, 204, 113)
+
+
 class _GameConstant:
     """
         Константы используемые для игры, размеры экрана, сложность, и т.д.
@@ -81,6 +85,10 @@ class _GameConstant:
     @property
     def PlayerHeight(self):
         return self._player_height
+
+    @property
+    def Color(self) -> _Colors:
+        return _Colors
 
 
 GameConstants = _GameConstant()

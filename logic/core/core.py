@@ -17,14 +17,17 @@ class Core:
         pg.init()
 
         pg.display.set_caption(GameConstants.Title)
-        self.screen: Surface = pg.display.set_mode(GameConstants.Size)
+        # self.screen: Surface = pg.display.set_mode((0, 0),
+        #                                            pygame.FULLSCREEN)
+        self.screen: Surface = pg.display.set_mode((1920, 1080))
         self.world = World(screen=self.screen)
         self.player = self.world.player
         self.level = self.world.level
 
     def start(self):
         clock = pygame.time.Clock()
-        # self.level.draw()
+        self.level.draw()
+        self.refresh_screen()
 
         while True:
             clock.tick(GameConstants.AmountFps)
@@ -52,10 +55,10 @@ class Core:
         self.player_events()
 
     def player_events(self):
-        self.player.moving(action_type=self.level.get_current_surface(self.player.rect))
+        self.player.moving(action_type=self.level.get_current_surface(self.player))
 
     def refresh_screen(self):
-        self.level.draw()
+        from_point, to_point = self.level.repaint(player=self.world.player)
         self.screen.blit(self.world.player.image,
                          self.world.player.rect,)
-        pg.display.flip()
+        pg.display.update(pygame.Rect(*from_point, *to_point))
