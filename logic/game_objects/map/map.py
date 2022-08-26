@@ -18,12 +18,17 @@ class Map:
     _elements_group: Group = None
     _display_surface: Surface = None
     _elements: dict[tuple[int, int], MapElementInGame] = None
+    _update_after_player: list[Sprite] = None
 
     def __init__(self, surface: Surface):
         self._elements = {}
         self._display_surface = surface
         self._elements_group = Group()
         self._create_map()
+
+    @property
+    def map_surface(self):
+        return self._display_surface
 
     def _create_map(self):
         # self._display_surface.fill()
@@ -60,7 +65,7 @@ class Map:
         self._elements_group.draw(self._display_surface)
 
     def get_current_surface(self,
-                            player: Player) -> ActionType:
+                            player: Player) -> MapElementInGame:
         """
             Возвращаем текущую текстуру на которой стоит игрок,
             нужно для взаимодействия игрок -> карта и карта -> игрок
@@ -74,13 +79,15 @@ class Map:
                                                actual_coords.y //
                                                GameConstants.HeightMapElement *
                                                GameConstants.HeightMapElement)
-        return self._elements[current_map_element_player_position].ActionType
+        return self._elements[current_map_element_player_position].action_type
 
     def repaint(self,
                 player: Player) -> tuple:
         actual_coords = player.coords
         nearby_rects = (-1, 0, 1)
         last_element = from_point = to_point = None
+
+        self._update_after_player = []
 
         for row_element in nearby_rects:
             for column_element in nearby_rects:
@@ -90,18 +97,24 @@ class Map:
 
                 if element := self._elements.get(elements_coords):
                     element: MapElementInGame = element
-                    self._display_surface.blit(element.Sprite.image,
-                                               element.Sprite.rect)
-                    last_element = element
 
+                    self._update_after_player += list(element.additional_sprites)
+                    self.map_surface.blit(element.sprite.image,
+                                          element.sprite.rect)
+
+                    # для обновления определенной области
+                    last_element = element
                     if not from_point:
                         from_point = elements_coords
         else:
-            to_point = (last_element.Sprite.rect.x + last_element.Sprite.rect.width,
-                        last_element.Sprite.rect.y + last_element.Sprite.rect.height,)
+            to_point = (last_element.sprite.rect.x + last_element.sprite.rect.width,
+                        last_element.sprite.rect.y + last_element.sprite.rect.height,)
 
         return from_point, to_point
 
-
+    def update_after_player(self):
+        for sprite in self._update_after_player:
+            self.map_surface.blit(sprite.image,
+                                  sprite.rect)
 
 

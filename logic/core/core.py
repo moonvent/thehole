@@ -61,4 +61,6 @@ class Core:
         from_point, to_point = self.level.repaint(player=self.world.player)
         self.screen.blit(self.world.player.image,
                          self.world.player.rect,)
+        self.level.update_after_player()
+
         pg.display.update(pygame.Rect(*from_point, *to_point))
