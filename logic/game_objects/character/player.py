@@ -1,20 +1,20 @@
-from logic.game_objects.action import ActionType
+from logic.game_objects.character.action import ActionType
 from logic.game_objects.character.character import Character
+from logic.game_objects.map.element import MapElementInGame
 from logic.game_objects.position import Position
-from logic.game_objects.character.moving import PlayerMovingMixin, MoveDirection
+from logic.game_objects.character.moving import PlayerMovingMixin
 
 
 class Player(Character,
              PlayerMovingMixin):
     _handle_point: Position = None
+    _last_action: ActionType = None
     # точка персонажа на карте, то, где его будут обрабатывать (на данный момент низ топ)
 
     def __init__(self):
         super().__init__()
         PlayerMovingMixin.__init__(self)
         self.spawn_point = Position(0, 0)
-        self.Direction = MoveDirection.Right
-        # self.handle_point = self.rect.midbottom
         self.handle_point = self.rect.midbottom
 
     @property
@@ -34,9 +34,9 @@ class Player(Character,
     def coords(self, value):
         raise NotImplemented
 
-    def moving(self, action_type: ActionType):
-        super(Player, self).moving(action_type)
+    def moving(self, surface: MapElementInGame):
+        super(Player, self).moving(surface)
         self.update()
         self.stop(swap_sprite=False,
-                  action_type=action_type)
+                  surface=surface)
 

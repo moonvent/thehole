@@ -90,5 +90,14 @@ class _GameConstant:
     def Color(self) -> _Colors:
         return _Colors
 
+    _high_ground_top_height: int = 130
+    _high_ground_bottom_height: int = 75
+    @property
+    def HighGroundTopHeight(self):
+        return self._high_ground_top_height
+    @property
+    def HighGroundBottomHeight(self):
+        return self._high_ground_bottom_height
+
 
 GameConstants = _GameConstant()

@@ -1,11 +1,8 @@
-import sys
-
 import pygame
 import pygame as pg
 from pygame.event import EventType
 from pygame.surface import Surface
 
-from logic.game_objects.player import Player
 from logic.game_objects.world import World
 from services.constants import GameConstants
 
@@ -55,7 +52,7 @@ class Core:
         self.player_events()
 
     def player_events(self):
-        self.player.moving(action_type=self.level.get_current_surface(self.player))
+        self.player.moving(surface=self.level.get_current_surface(self.player))
 
     def refresh_screen(self):
         from_point, to_point = self.level.repaint(player=self.world.player)

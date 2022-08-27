@@ -1,14 +1,11 @@
-from typing import NamedTuple
-
-from logic.game_objects.action import ActionType
 
 pattern = (
-    'ggbdcgg     g                                           ',
-    'eggegge                                                  ',
-    '                                                       ',
-    '                                                       ',
-    '                                                       ',
-    '                                                       ',
+    'ggbdcgg     g                                          ',
+    'eggegge                                                ',
+    'gggggdg                                                ',
+    'gdgggdg                                                ',
+    'gdggggg                                                ',
+    'ggggggg                                                ',
     '                                                       ',
     '                                                       ',
     '                                                       ',
@@ -25,62 +22,3 @@ pattern = (
     '                                                       ',
     '                                                       ',
 )
-
-
-class MapElementConst(NamedTuple):
-    path: str | tuple[str, ...]
-    action_type: ActionType
-
-
-MapElementsConsts = {'a': MapElementConst('tileGrass_slope_half.png', ActionType.usual),
-                     'b': MapElementConst('tileGrass_slopeLeft_grass.png', ActionType.lifting_up),
-                     'c': MapElementConst('tileGrass_slopeRight_grass.png', ActionType.lifting_down),
-                     'd': MapElementConst('tileGrass_grass.png', ActionType.usual),
-                     'e': MapElementConst(('grass.png',
-                                           'foliageFewTree_green.png'), ActionType.usual),
-                     'f': MapElementConst('tileGrass_slope.png', ActionType.usual),
-                     'g': MapElementConst('grass.png', ActionType.usual),
-                     # 'h': MapElementConst('', ActionType.usual),
-                     # 'i': MapElementConst('', ActionType.usual),
-                     # 'j': MapElementConst('', ActionType.usual),
-                     # 'k': MapElementConst('', ActionType.usual),
-                     # 'l': MapElementConst('', ActionType.usual),
-                     # 'm': MapElementConst('', ActionType.usual),
-                     # 'n': MapElementConst('', ActionType.usual),
-                     # 'o': MapElementConst('', ActionType.usual),
-                     # 'p': MapElementConst('', ActionType.usual),
-                     # 'q': MapElementConst('', ActionType.usual),
-                     # 'r': MapElementConst('', ActionType.usual),
-                     # 's': MapElementConst('', ActionType.usual),
-                     # 't': MapElementConst('', ActionType.usual),
-                     # 'u': MapElementConst('', ActionType.usual),
-                     # 'v': MapElementConst('', ActionType.usual),
-                     # 'w': MapElementConst('', ActionType.usual),
-                     # 'x': MapElementConst('', ActionType.usual),
-                     # 'y': MapElementConst('', ActionType.usual),
-                     # 'z': MapElementConst('', ActionType.usual),
-                     # '1': MapElementConst('', ActionType.usual),
-                     # '2': MapElementConst('', ActionType.usual),
-                     # '3': MapElementConst('', ActionType.usual),
-                     # '4': MapElementConst('', ActionType.usual),
-                     # '5': MapElementConst('', ActionType.usual),
-                     # '6': MapElementConst('', ActionType.usual),
-                     # '7': MapElementConst('', ActionType.usual),
-                     # '8': MapElementConst('', ActionType.usual),
-                     # '9': MapElementConst('', ActionType.usual),
-                     # '0': MapElementConst('', ActionType.usual),
-                     # 'A': MapElementConst('', ActionType.usual),
-                     # 'B': MapElementConst('', ActionType.usual),
-                     # 'C': MapElementConst('', ActionType.usual),
-                     # 'D': MapElementConst('', ActionType.usual),
-                     # 'E': MapElementConst('', ActionType.usual),
-                     # 'F': MapElementConst('', ActionType.usual),
-                     # 'G': MapElementConst('', ActionType.usual),
-                     # 'H': MapElementConst('', ActionType.usual),
-                     # 'I': MapElementConst('', ActionType.usual),
-                     # 'J': MapElementConst('', ActionType.usual),
-                     # 'K': MapElementConst('', ActionType.usual),
-                     # 'L': MapElementConst('', ActionType.usual),
-                     # 'M': MapElementConst('', ActionType.usual),
-                     # 'N': MapElementConst('', ActionType.usual),
-                     }

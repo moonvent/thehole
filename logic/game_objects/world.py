@@ -1,8 +1,7 @@
 import pygame
 
-from logic.game_objects.map.map import Map
-from logic.game_objects.player import Player
-from services.load_resources import load_image
+from logic.game_objects.map.map import Map, map_object
+from logic.game_objects.character.player import Player
 
 
 class World:
@@ -14,5 +13,7 @@ class World:
 
     def __init__(self, screen: pygame.Surface):
         self.player = Player()
-        self.level = Map(surface=screen)
+        global map_object
+        map_object = map_object(surface=screen)
+        self.level = map_object
 

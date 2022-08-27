@@ -1,15 +1,12 @@
 import os
 
 from pygame import Surface
-from pygame.rect import Rect
 from pygame.sprite import Sprite, Group
 
-from logic.game_objects.action import ActionType
-from logic.game_objects.player import Player
-from logic.game_objects.position import Position
+from logic.game_objects.character.player import Player
 
-from logic.game_objects.map.map_element import MapElement, MapElementInGame
-from logic.game_objects.map.pattern import pattern, MapElementsConsts
+from logic.game_objects.map.element import MapElement, MapElementInGame, MapElements
+from logic.game_objects.map.pattern import pattern
 from services.constants import Folders, GameConstants
 from services.load_resources import load_image
 
@@ -30,12 +27,21 @@ class Map:
     def map_surface(self):
         return self._display_surface
 
+    @property
+    def map_elements(self):
+        return self._elements
+
+    def get_element_by_coords(self, x: int, y: int) -> MapElementInGame:
+        x = x // GameConstants.WidthMapElement * GameConstants.WidthMapElement
+        y = y // GameConstants.HeightMapElement * GameConstants.HeightMapElement
+        return self.map_elements[(x, y)]
+
     def _create_map(self):
         # self._display_surface.fill()
         for row_number, row in enumerate(pattern):
             for column_number, element in enumerate(row):
 
-                if map_element_const := MapElementsConsts.get(element):
+                if map_element_const := MapElements.get(element):
 
                     sprites_path, sprites = [], []
                     if isinstance(map_element_const.path, str):
@@ -56,7 +62,8 @@ class Map:
 
                     self._elements[(x, y)] = MapElementInGame(sprite=map_element,
                                                               action_type=map_element_const.action_type,
-                                                              additional_sprites=additional_sprites)
+                                                              additional_sprites=additional_sprites,
+                                                              map_level=map_element_const.map_level)
 
                     for map_elem in (map_element, *additional_sprites):
                         self._elements_group.add(map_elem)
@@ -79,7 +86,7 @@ class Map:
                                                actual_coords.y //
                                                GameConstants.HeightMapElement *
                                                GameConstants.HeightMapElement)
-        return self._elements[current_map_element_player_position].action_type
+        return self._elements[current_map_element_player_position]
 
     def repaint(self,
                 player: Player) -> tuple:
@@ -118,3 +125,4 @@ class Map:
                                   sprite.rect)
 
 
+map_object = Map

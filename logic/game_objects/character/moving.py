@@ -1,97 +1,67 @@
-from enum import Enum
-from typing import NamedTuple
+from enum import IntEnum
+from typing import Callable
 
 import pygame
+from pygame.rect import Rect
 from pygame.surface import Surface
 
-from logic.game_objects.action import ActionType
-from logic.game_objects.position import _MapPosition, Position
+from logic.game_objects.character.action import ActionType
+from logic.game_objects.map.element import MapElementInGame, MapElement
+from logic.game_objects.map.level import MapLevel
+from logic.game_objects.position import _MapPosition, Position, MoveDirection
 import pygame.locals as pg_consts
 
-
-class MoveDirection(Enum):
-    Left = 'left'
-    Right = 'right'
-    Up = 'up'
-    Down = 'down'
-    Stop = 'stop'
+from services.constants import GameConstants
 
 
-class _Moving(_MapPosition):
-    """
-        Класс для перемещения персонажа
-    """
-    _current_direction: MoveDirection = None
-    _last_move_direction: MoveDirection = None
-    _frames_for_walk: list[Surface] = None
+class _Lifting:
+    _player_level: MapLevel = MapLevel.Usual
 
     @property
-    def direction(self):
-        return self._current_direction
+    def player_level(self):
+        return self._player_level
 
-    @direction.setter
-    def direction(self, new_direction: MoveDirection):
-        self._current_direction = new_direction
+    @player_level.setter
+    def player_level(self, lifting_direction: MapLevel):
+        if not isinstance(lifting_direction, MapLevel):
+            raise ValueError('lifting_direction должно быть "MapLevel" типа')
 
-    def _move(self,
-              action_type: ActionType,
-              direction: MoveDirection):
+        self._player_level = lifting_direction
 
-        match direction:
-            case MoveDirection.Up:
-                self.next_position.y -= self._one_step
-                self.direction = MoveDirection.Up
+    def change_player_lifting(self,
+                              surface_lift: MapLevel,
+                              player_lift: MapLevel,
+                              action: ActionType):
 
-            case MoveDirection.Down:
-                self.next_position.y += self._one_step
-                self.direction = MoveDirection.Down
+        # print(62, surface_lift, player_lift, action)
+        match surface_lift:
 
-            case MoveDirection.Left:
+            case MapLevel.Usual if player_lift == MapLevel.Usual and action == ActionType.lifting_up:
+                self.player_level = MapLevel.ElevationUp
 
-                match action_type:
-                    case ActionType.lifting_up:
-                        self.next_position.y += self._one_step / 2
-                    case ActionType.lifting_down:
-                        self.next_position.y -= self._one_step / 2
+            case MapLevel.Usual if player_lift == MapLevel.ElevationDown and action == ActionType.lifting_up:
+                self.player_level = MapLevel.Usual
 
-                self.next_position.x -= self._one_step
-                self.direction = MoveDirection.Left
+            case MapLevel.Usual if player_lift == MapLevel.ElevationUp and action == action.lifting_up:
+                pass
 
-            case MoveDirection.Right:
+            case MapLevel.Usual if player_lift == MapLevel.Usual and action == ActionType.lifting_down:
+                self.player_level = MapLevel.ElevationDown
 
-                match action_type:
-                    case ActionType.lifting_up:
-                        self.next_position.y -= self._one_step / 2
-                    case ActionType.lifting_down:
-                        self.next_position.y += self._one_step / 2
+            case MapLevel.Usual if player_lift == MapLevel.ElevationUp and action == action.lifting_down:
+                self.player_level = MapLevel.Usual
 
-                self.next_position.x += + self._one_step
-                self.direction = MoveDirection.Right
+            case MapLevel.Usual if player_lift == MapLevel.ElevationDown and action == action.lifting_down:
+                pass
 
-            case MoveDirection.Stop:
-                self.next_position = Position(0, 0)
+            case MapLevel.Usual if player_lift == MapLevel.Usual:
+                pass
 
             case _:
-                self.next_position = Position(0, 0)
-                return
+                raise Exception('Необработанная ситуация')
 
-        self.move_image(direction=direction)
-
-    def move_up(self, action_type: ActionType):
-        self._move(direction=MoveDirection.Up,
-                   action_type=action_type)
-
-    def move_down(self, action_type: ActionType):
-        self._move(direction=MoveDirection.Down,
-                   action_type=action_type)
-
-    def move_left(self, action_type: ActionType):
-        self._move(direction=MoveDirection.Left,
-                   action_type=action_type)
-
-    def move_right(self, action_type: ActionType):
-        self._move(direction=MoveDirection.Right,
-                   action_type=action_type)
+class _ImageMoving:
+    _frames_for_walk: list[Surface] = None
 
     def move_image(self, direction: MoveDirection):
 
@@ -136,9 +106,161 @@ class _Moving(_MapPosition):
 
                     self.image = image
 
-    def stop(self,  action_type: ActionType, swap_sprite: bool = True):
-        self._move(direction=MoveDirection.Stop if swap_sprite else None,
-                   action_type=action_type)
+
+class _Moving(_MapPosition,
+              _Lifting,
+              _ImageMoving):
+    """
+        Класс для перемещения персонажа
+    """
+    _current_direction: MoveDirection = MoveDirection.Right
+    _last_move_direction: MoveDirection = None
+
+    @property
+    def direction(self):
+        return self._current_direction
+
+    @direction.setter
+    def direction(self, new_direction: MoveDirection):
+        if not isinstance(new_direction, MoveDirection):
+            raise ValueError('new_direction is not "MoveDirection" type')
+        self._current_direction = new_direction
+
+    def move_up(self, surface: MapElementInGame):
+
+        move = False
+
+        if self.check_next_position(current_surface=surface,
+                                    direction=MoveDirection.Up,
+                                    current_position=self.coords):
+            # когда на том же уровне что и карта
+            move = True
+
+        elif surface.map_level == MapLevel.ElevationUp and self._last_action == ActionType.lifting_up:
+            # когда уже на возвышенности
+            if self.coords.y > surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundTopHeight:
+                move = True
+
+        if move:
+            self.position_up()
+            self.move_image(direction=MoveDirection.Up)
+
+    def move_down(self, surface: MapElementInGame):
+
+        move = False
+
+        if self.check_next_position(current_surface=surface,
+                                    direction=MoveDirection.Down,
+                                    current_position=self.coords):
+            # когда на том же уровне что и карта
+            move = True
+
+        elif surface.map_level == MapLevel.ElevationUp and self._last_action == ActionType.lifting_up:
+            # когда уже на возвышенности
+            if self.coords.y < surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight:
+                move = True
+
+        if move:
+            self.position_down()
+            self.move_image(direction=MoveDirection.Down)
+
+    def move_left(self, surface: MapElementInGame):
+
+        if self.check_next_position(current_surface=surface,
+                                    direction=MoveDirection.Left,
+                                    current_position=self.coords):
+            self.position_left()
+            self.move_image(direction=MoveDirection.Left)
+
+            if surface.action_type != ActionType.usual:
+                # из-за того что слева направо - главное направление - инвертируем стороны
+                self._last_action = ActionType.lifting_up if self._last_action == ActionType.lifting_down else ActionType.lifting_down
+
+            self.position_lifting(direction=MoveDirection.Left,
+                                  action_type=surface.action_type)
+
+    def move_right(self, surface: MapElementInGame):
+
+        if self.check_next_position(current_surface=surface,
+                                    direction=MoveDirection.Right,
+                                    current_position=self.coords):
+            self.position_right()
+            self.move_image(direction=MoveDirection.Right)
+
+            if surface.action_type != ActionType.usual:
+                self._last_action = surface.action_type
+
+            self.position_lifting(direction=MoveDirection.Right,
+                                  action_type=surface.action_type)
+
+    def stop(self,  surface: MapElementInGame, swap_sprite: bool = True):
+        self.position_stop()
+        if swap_sprite:
+            self.move_image(MoveDirection.Stop)
+
+    def check_next_position(self,
+                            current_surface: MapElementInGame,
+                            direction: MoveDirection,
+                            current_position: Position) -> bool:
+        """
+            Проверяем следующую позицию на возможность зайти на неё
+        :param current_surface: текущая клетка на которой стоим
+        :param direction: в какую сторону идем
+        :param current_position: текущее расположение игрока
+        :return: истина или ложь, можно идти или нет
+        """
+
+        next_position = self.get_next_player_position(direction=direction,
+                                                      current_position=current_position)
+        return self.get_next_surface(direction=direction,
+                                     next_position=next_position,
+                                     current_surface=current_surface)
+
+    def get_next_player_position(self,
+                                 direction: MoveDirection,
+                                 current_position: Position) -> Position:
+        match direction:
+
+            case MoveDirection.Up:
+                current_position.y -= self.one_step
+
+            case MoveDirection.Down:
+                current_position.y += self.one_step
+
+            case MoveDirection.Left:
+                current_position.x -= self.one_step
+
+            case MoveDirection.Right:
+                current_position.x += self.one_step
+
+        return current_position
+
+    def get_next_surface(self,
+                         direction: MoveDirection,
+                         next_position: Position,
+                         current_surface: MapElementInGame):
+        from logic.game_objects.world import map_object
+        current_surace_rect = current_surface.sprite.rect
+
+        need_calculate = False
+
+        match direction:
+            case MoveDirection.Up if next_position.y < current_surace_rect.y:
+                need_calculate = True
+            case MoveDirection.Down if next_position.y > current_surace_rect.y:
+                need_calculate = True
+            case MoveDirection.Left if next_position.x < current_surace_rect.x:
+                need_calculate = True
+            case MoveDirection.Right if next_position.x > current_surace_rect.x:
+                need_calculate = True
+
+        if need_calculate:
+            next_element = map_object.get_element_by_coords(x=next_position.x,
+                                                            y=next_position.y)
+            if next_element.map_level != self.player_level:
+                return False
+
+        return True
 
 
 class PlayerMovingMixin(_Moving):
@@ -151,17 +273,17 @@ class PlayerMovingMixin(_Moving):
                             self.move_left: pg_consts.K_LEFT,
                             self.move_right: pg_consts.K_RIGHT,}
 
-    def moving(self, action_type: ActionType):
+    def moving(self, surface: MapElementInGame):
         keys = pygame.key.get_pressed()
 
         if pressed_buttons := tuple(move_method
                                     for move_method, button_id in self._directions.items()
                                     if keys[button_id]):
-            pressed_buttons[0](action_type=action_type)
+            pressed_buttons[0](surface=surface)
 
         else:
             self.stop(swap_sprite=True,
-                      action_type=action_type)
+                      surface=surface)
 
 
 

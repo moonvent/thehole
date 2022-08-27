@@ -1,11 +1,9 @@
 from dataclasses import dataclass, astuple
 from enum import Enum
 import os
-from typing import NamedTuple
 
 import pygame
 
-from logic.game_objects.character.moving import _Moving
 from services.constants import GameConstants
 from services.load_resources import load_image
 
@@ -63,7 +61,7 @@ class Character(pygame.sprite.Sprite):
         :return:
         """
 
-        self._one_step = GameConstants.DefaultStepPixels
+        self.one_step = GameConstants.DefaultStepPixels
 
         for enum_elem in _CharacterActions:
             setattr(self, f'action_{enum_elem.name}', load_image(path_join(folder_name, enum_elem.value))[0])
