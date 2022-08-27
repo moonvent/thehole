@@ -4,6 +4,7 @@ import os
 
 import pygame
 
+from logic.game_objects.position import Position
 from services.constants import GameConstants
 from services.load_resources import load_image
 
@@ -49,12 +50,15 @@ class Character(pygame.sprite.Sprite):
     """
         Character interface
     """
+    _handle_point: Position = None
 
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self._load_character()
+    def __init__(self, spawn_point: Position):
+        super().__init__()
+        self.spawn_point = spawn_point
+        self._load_character_assets()
+        self.handle_point = self.rect.midbottom
 
-    def _load_character(self, folder_name: str = GameConstants.DefaulSkinFolder):
+    def _load_character_assets(self, folder_name: str = GameConstants.DefaulSkinFolder):
         """
             Load all char poses
         :param folder_name: char name from statics/characters
@@ -78,4 +82,25 @@ class Character(pygame.sprite.Sprite):
         self.rect = self.rect.move(astuple(self.next_position))
         pygame.event.pump()
 
+    @property
+    def coords(self) -> Position:
+        return Position(self.rect.x + self.handle_point.x,
+                        self.rect.y + self.handle_point.y)
 
+    @coords.setter
+    def coords(self, value):
+        raise NotImplemented
+
+    @property
+    def handle_point(self):
+        return self._handle_point
+
+    @handle_point.setter
+    def handle_point(self,
+                     value: tuple[int, int] | Position):
+        if not isinstance(value, Position) and \
+                not isinstance(value, tuple) or \
+                len(value) != 2:
+            raise TypeError('"handle_point" должен быть типа "Position" или "tuple" с двумя элементами')
+
+        self._handle_point = value if isinstance(value, Position) else Position(*value)

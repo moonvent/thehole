@@ -24,7 +24,8 @@ class Core:
     def start(self):
         clock = pygame.time.Clock()
         self.level.draw()
-        self.refresh_screen()
+        # self.refresh_screen()
+        pg.display.flip()
 
         while True:
             clock.tick(GameConstants.AmountFps)

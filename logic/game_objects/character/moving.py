@@ -60,6 +60,7 @@ class _Lifting:
             case _:
                 raise Exception('Необработанная ситуация')
 
+
 class _ImageMoving:
     _frames_for_walk: list[Surface] = None
 
@@ -107,9 +108,105 @@ class _ImageMoving:
                     self.image = image
 
 
+class _PreparingToNextStep:
+    """
+        Класс в котором расписаны методы просчитывания куда пойдет игрок на один блок,
+        для того чтоб не заходил на возвышености
+    """
+    _last_action: ActionType = None
+
+    @property
+    def last_action(self):
+        return self._last_action
+
+    @last_action.setter
+    def last_action(self, value: ActionType):
+        if not isinstance(value, ActionType):
+            raise TypeError('"_last_action" должен быть типа "ActionType"')
+        self._last_action = value
+
+    def check_next_position(self,
+                            current_surface: MapElementInGame,
+                            direction: MoveDirection,
+                            current_position: Position) -> bool:
+        """
+            Проверяем следующую позицию на возможность зайти на неё
+        :param current_surface: текущая клетка на которой стоим
+        :param direction: в какую сторону идем
+        :param current_position: текущее расположение персонажа
+        :return: истина или ложь, можно идти или нет
+        """
+
+        next_position = self.get_next_character_position(direction=direction,
+                                                         current_position=current_position)
+        return self.get_next_surface(direction=direction,
+                                     next_position=next_position,
+                                     current_surface=current_surface)
+
+    def get_next_character_position(self,
+                                    direction: MoveDirection,
+                                    current_position: Position) -> Position:
+        """
+            Просчитывание следующей позиции персонажа, после нажатия на кнопку
+        :param direction: направление
+        :param current_position: текущая позиция
+        :return:
+        """
+        match direction:
+
+            case MoveDirection.Up:
+                current_position.y -= self.one_step
+
+            case MoveDirection.Down:
+                current_position.y += self.one_step
+
+            case MoveDirection.Left:
+                current_position.x -= self.one_step
+
+            case MoveDirection.Right:
+                current_position.x += self.one_step
+
+        return current_position
+
+    def get_next_surface(self,
+                         direction: MoveDirection,
+                         next_position: Position,
+                         current_surface: MapElementInGame):
+        """
+            Получение следующего блока, и проверка его на возможность зайти на него
+        :param direction: направления куда двигается персонаж
+        :param next_position: следующая позиция куда персонаж хочет пойти
+        :param current_surface: текущее место где стоит персонаж
+        :return: можно или нет идти на следующий блок
+        """
+        from logic.game_objects.world import map_object
+        current_surace_rect = current_surface.sprite.rect
+
+        need_calculate = False
+
+        match direction:
+            case MoveDirection.Up if next_position.y < current_surace_rect.y:
+                need_calculate = True
+            case MoveDirection.Down if next_position.y > current_surace_rect.y:
+                need_calculate = True
+            case MoveDirection.Left if next_position.x < current_surace_rect.x:
+                need_calculate = True
+            case MoveDirection.Right if next_position.x > current_surace_rect.x:
+                need_calculate = True
+
+        if need_calculate:
+            next_element = map_object.get_element_by_coords(x=next_position.x,
+                                                            y=next_position.y)
+            if self._last_action == ActionType.usual and next_element.map_level != self.player_level:
+                return False
+
+        return True
+
+
 class _Moving(_MapPosition,
               _Lifting,
-              _ImageMoving):
+              _ImageMoving,
+              _PreparingToNextStep):
     """
         Класс для перемещения персонажа
     """
@@ -127,6 +224,8 @@ class _Moving(_MapPosition,
         self._current_direction = new_direction
 
     def move_up(self, surface: MapElementInGame):
+
+        self.last_action = ActionType.usual
 
         move = False
 
@@ -146,6 +245,8 @@ class _Moving(_MapPosition,
             self.move_image(direction=MoveDirection.Up)
 
     def move_down(self, surface: MapElementInGame):
+
+        self.last_action = ActionType.usual
 
         move = False
 
@@ -174,7 +275,7 @@ class _Moving(_MapPosition,
 
             if surface.action_type != ActionType.usual:
                 # из-за того что слева направо - главное направление - инвертируем стороны
-                self._last_action = ActionType.lifting_up if self._last_action == ActionType.lifting_down else ActionType.lifting_down
+                self.last_action = ActionType.lifting_up if self._last_action == ActionType.lifting_down else ActionType.lifting_down
 
             self.position_lifting(direction=MoveDirection.Left,
                                   action_type=surface.action_type)
@@ -188,7 +289,7 @@ class _Moving(_MapPosition,
             self.move_image(direction=MoveDirection.Right)
 
             if surface.action_type != ActionType.usual:
-                self._last_action = surface.action_type
+                self.last_action = surface.action_type
 
             self.position_lifting(direction=MoveDirection.Right,
                                   action_type=surface.action_type)
@@ -198,73 +299,11 @@ class _Moving(_MapPosition,
         if swap_sprite:
             self.move_image(MoveDirection.Stop)
 
-    def check_next_position(self,
-                            current_surface: MapElementInGame,
-                            direction: MoveDirection,
-                            current_position: Position) -> bool:
-        """
-            Проверяем следующую позицию на возможность зайти на неё
-        :param current_surface: текущая клетка на которой стоим
-        :param direction: в какую сторону идем
-        :param current_position: текущее расположение игрока
-        :return: истина или ложь, можно идти или нет
-        """
-
-        next_position = self.get_next_player_position(direction=direction,
-                                                      current_position=current_position)
-        return self.get_next_surface(direction=direction,
-                                     next_position=next_position,
-                                     current_surface=current_surface)
-
-    def get_next_player_position(self,
-                                 direction: MoveDirection,
-                                 current_position: Position) -> Position:
-        match direction:
-
-            case MoveDirection.Up:
-                current_position.y -= self.one_step
-
-            case MoveDirection.Down:
-                current_position.y += self.one_step
-
-            case MoveDirection.Left:
-                current_position.x -= self.one_step
-
-            case MoveDirection.Right:
-                current_position.x += self.one_step
-
-        return current_position
-
-    def get_next_surface(self,
-                         direction: MoveDirection,
-                         next_position: Position,
-                         current_surface: MapElementInGame):
-        from logic.game_objects.world import map_object
-        current_surace_rect = current_surface.sprite.rect
-
-        need_calculate = False
-
-        match direction:
-            case MoveDirection.Up if next_position.y < current_surace_rect.y:
-                need_calculate = True
-            case MoveDirection.Down if next_position.y > current_surace_rect.y:
-                need_calculate = True
-            case MoveDirection.Left if next_position.x < current_surace_rect.x:
-                need_calculate = True
-            case MoveDirection.Right if next_position.x > current_surace_rect.x:
-                need_calculate = True
-
-        if need_calculate:
-            next_element = map_object.get_element_by_coords(x=next_position.x,
-                                                            y=next_position.y)
-            if next_element.map_level != self.player_level:
-                return False
-
-        return True
-
 
 class PlayerMovingMixin(_Moving):
-
+    """
+        Привязка перещмения игрока к перемещению игрока по кнопкам;
+    """
     _directions: dict = None
 
     def __init__(self):
@@ -284,6 +323,3 @@ class PlayerMovingMixin(_Moving):
         else:
             self.stop(swap_sprite=True,
                       surface=surface)
-
-
-
