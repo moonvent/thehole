@@ -1,3 +1,4 @@
+import random
 from typing import Optional
 
 import pygame
@@ -128,7 +129,7 @@ class _PreparingToNextStep:
             case MoveDirection.Up if self.rect.top < current_surace_rect.y:
                 x, y = self.rect.centerx, self.rect.bottom - GameConstants.DefaultStepPixels
             case MoveDirection.Down if self.rect.bottom > current_surace_rect.y:
-                x, y = self.rect.centerx, self.rect.bottom
+                x, y = self.rect.centerx, self.rect.bottom + GameConstants.DefaultStepPixels
             case MoveDirection.Left if self.rect.left < current_surace_rect.x:
                 x, y = self.rect.left, self.rect.bottom
             case MoveDirection.Right if self.rect.right > current_surace_rect.x:
@@ -137,7 +138,19 @@ class _PreparingToNextStep:
         if x and y:
             next_element = map_object.get_element_by_coords(x=x,
                                                             y=y)
-            if not next_element or (self._last_action == ActionType.usual and next_element.map_level != self.player_level):
+            # next_element.sprite.image = Surface((128, 200))
+            # next_element.sprite.image.fill((random.randint(1, 255), 0, 0))
+            # next_element.sprite.rect = next_element.sprite.image.get_rect()
+            # next_element.sprite.rect.x = 128
+            # next_element.sprite.rect.y = 400
+            # print(next_element.sprite.rect)
+            # print(x, y)
+            # попробуй collide
+
+            if not next_element:
+                return False
+
+            if self.last_action == ActionType.usual and next_element.map_level != self.player_level:
                 return False
 
         return True

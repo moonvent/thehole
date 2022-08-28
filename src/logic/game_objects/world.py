@@ -1,3 +1,5 @@
+from typing import Callable
+
 import pygame
 
 from src.logic.game_objects.map.map import Map, map_object
@@ -20,7 +22,8 @@ class World:
                  ):
         self.player = Player()
         global map_object
-        map_object = map_object(surface=screen,
-                                map_pattern=map_pattern)
+        if isinstance(map_object, Callable):
+            map_object = map_object(surface=screen,
+                                    map_pattern=map_pattern)
         self.map = map_object
 

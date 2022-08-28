@@ -9,5 +9,6 @@ class MovingPatterns(Enum):
         'gggggdg',
         'gdgggdg',
         'ggdggdg',
-        'ghggggg',
+        'ggggggg',
+        'ggggggg',
     )

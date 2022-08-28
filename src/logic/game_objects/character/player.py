@@ -17,7 +17,7 @@ class Player(Character,
         surface = self.get_map_element_under_character()
         super(Player, self).moving(surface, pressed_button=pressed_button)
         self.update()
-        print(self.rect)
+        # print(self.rect)
         # print(self.player_level)
         self.stop(swap_sprite=False,
                   surface=surface)
