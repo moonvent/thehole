@@ -1,10 +1,10 @@
 from typing import NamedTuple
 
-from logic.game_objects.character.action import ActionType
+from src.logic.game_objects.character.mechanics.action import ActionType
 from pygame.sprite import Sprite
 from pygame.surface import Surface
 
-from logic.game_objects.map.level import MapLevel
+from src.logic.game_objects.map.level import MapLevel
 
 
 class MapElementLoadType(NamedTuple):

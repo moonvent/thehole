@@ -3,7 +3,7 @@ import pygame as pg
 from pygame.rect import Rect
 from pygame.surface import Surface
 
-from services.constants import Folders
+from src.services.constants import Folders
 
 
 def load_image(name: str,

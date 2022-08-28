@@ -3,12 +3,14 @@ import os
 from pygame import Surface
 from pygame.sprite import Sprite, Group
 
-from logic.game_objects.character.player import Player
+from src.logic.game_objects.character.player import Player
 
-from logic.game_objects.map.element import MapElement, MapElementInGame, MapElements
-from logic.game_objects.map.pattern import pattern
-from services.constants import Folders, GameConstants
-from services.load_resources import load_image
+from src.logic.game_objects.map.element import MapElement, MapElementInGame, MapElements
+from src.logic.game_objects.map.pattern import pattern
+from src.logic.game_objects.position import Position
+from src.services.constants import Folders, GameConstants
+from src.services.load_resources import load_image
+from tests.logic.game_objects.map.patterns import MovingPatterns
 
 
 class Map:
@@ -16,11 +18,18 @@ class Map:
     _display_surface: Surface = None
     _elements: dict[tuple[int, int], MapElementInGame] = None
     _update_after_player: list[Sprite] = None
+    _map_pattern: tuple[str, ...] = None
 
-    def __init__(self, surface: Surface):
-        self._elements = {}
+    def __init__(self,
+                 surface: Surface,
+                 map_pattern: tuple[str, ...]
+                 ):
         self._display_surface = surface
+        self._map_pattern = map_pattern
+
+        self._elements = {}
         self._elements_group = Group()
+
         self._create_map()
 
     @property
@@ -31,14 +40,22 @@ class Map:
     def map_elements(self):
         return self._elements
 
-    def get_element_by_coords(self, x: int, y: int) -> MapElementInGame:
+    def get_element_by_coords(self,
+                              x: int,
+                              y: int) -> MapElementInGame | None:
+        """
+            Получение элемента карты с помощью координат которые передаются
+        :param x:
+        :param y:
+        :return: элементв в списке элементов
+        """
         x = x // GameConstants.WidthMapElement * GameConstants.WidthMapElement
         y = y // GameConstants.HeightMapElement * GameConstants.HeightMapElement
-        return self.map_elements[(x, y)]
+        return self.map_elements.get((x, y))
 
     def _create_map(self):
         # self._display_surface.fill()
-        for row_number, row in enumerate(pattern):
+        for row_number, row in enumerate(self._map_pattern):
             for column_number, element in enumerate(row):
 
                 if map_element_const := MapElements.get(element):
@@ -70,23 +87,6 @@ class Map:
 
     def draw(self):
         self._elements_group.draw(self._display_surface)
-
-    def get_current_surface(self,
-                            player: Player) -> MapElementInGame:
-        """
-            Возвращаем текущую текстуру на которой стоит игрок,
-            нужно для взаимодействия игрок -> карта и карта -> игрок
-        :param player:
-        :return: возвращаем тип текстуры, на которой находится игрок
-        """
-        actual_coords = player.coords
-        current_map_element_player_position = (actual_coords.x //
-                                               GameConstants.WidthMapElement *
-                                               GameConstants.WidthMapElement,
-                                               actual_coords.y //
-                                               GameConstants.HeightMapElement *
-                                               GameConstants.HeightMapElement)
-        return self._elements[current_map_element_player_position]
 
     def repaint(self,
                 player: Player) -> tuple:

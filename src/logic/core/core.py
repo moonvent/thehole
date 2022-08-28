@@ -3,8 +3,8 @@ import pygame as pg
 from pygame.event import EventType
 from pygame.surface import Surface
 
-from logic.game_objects.world import World
-from services.constants import GameConstants
+from src.logic.game_objects.world import World
+from src.services.constants import GameConstants
 
 import pygame.locals as pg_consts
 
@@ -19,11 +19,11 @@ class Core:
         self.screen: Surface = pg.display.set_mode((1920, 1080))
         self.world = World(screen=self.screen)
         self.player = self.world.player
-        self.level = self.world.level
+        self.map = self.world.map
 
     def start(self):
         clock = pygame.time.Clock()
-        self.level.draw()
+        self.map.draw()
         # self.refresh_screen()
         pg.display.flip()
 
@@ -38,6 +38,7 @@ class Core:
             #     pg.display.flip()
 
     def handle_events(self):
+
         for event in pygame.event.get():
             event: EventType = event
 
@@ -53,12 +54,13 @@ class Core:
         self.player_events()
 
     def player_events(self):
-        self.player.moving(surface=self.level.get_current_surface(self.player))
+        # self.player.moving(surface=self.level.get_current_surface(self.player))
+        self.player.moving()
 
     def refresh_screen(self):
-        from_point, to_point = self.level.repaint(player=self.world.player)
+        from_point, to_point = self.map.repaint(player=self.world.player)
         self.screen.blit(self.world.player.image,
                          self.world.player.rect,)
-        self.level.update_after_player()
+        self.map.update_after_player()
 
         pg.display.update(pygame.Rect(*from_point, *to_point))

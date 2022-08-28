@@ -1,17 +1,15 @@
-from enum import IntEnum
-from typing import Callable
+from typing import Optional
 
 import pygame
-from pygame.rect import Rect
 from pygame.surface import Surface
 
-from logic.game_objects.character.action import ActionType
-from logic.game_objects.map.element import MapElementInGame, MapElement
-from logic.game_objects.map.level import MapLevel
-from logic.game_objects.position import _MapPosition, Position, MoveDirection
+from src.logic.game_objects.character.mechanics.action import ActionType
+from src.logic.game_objects.map.element import MapElementInGame
+from src.logic.game_objects.map.level import MapLevel
+from src.logic.game_objects.position import _MapPosition, MoveDirection
 import pygame.locals as pg_consts
 
-from services.constants import GameConstants
+from src.services.constants import GameConstants
 
 
 class _Lifting:
@@ -134,7 +132,7 @@ class _PreparingToNextStep:
         :param current_surface: текущее место где стоит персонаж
         :return: можно или нет идти на следующий блок
         """
-        from logic.game_objects.world import map_object
+        from src.logic.game_objects.world import map_object
         current_surace_rect = current_surface.sprite.rect
 
         x, y = 0, 0
@@ -152,7 +150,7 @@ class _PreparingToNextStep:
         if x and y:
             next_element = map_object.get_element_by_coords(x=x,
                                                             y=y)
-            if self._last_action == ActionType.usual and next_element.map_level != self.player_level:
+            if not next_element or (self._last_action == ActionType.usual and next_element.map_level != self.player_level):
                 return False
 
         return True
@@ -242,6 +240,8 @@ class _Moving(_MapPosition,
             if surface.action_type != ActionType.usual:
                 self.last_action = surface.action_type
 
+            # print(self.last_action, surface.action_type, self.player_level, surface.map_level)
+
             self.position_lifting(direction=MoveDirection.Right,
                                   action_type=surface.action_type)
 
@@ -263,12 +263,19 @@ class PlayerMovingMixin(_Moving):
                             self.move_left: pg_consts.K_LEFT,
                             self.move_right: pg_consts.K_RIGHT,}
 
-    def moving(self, surface: MapElementInGame):
-        keys = pygame.key.get_pressed()
+    def moving(self,
+               surface: MapElementInGame,
+               pressed_button: int | None = None):
+
+        if pressed_button and pressed_button in GameConstants.PlayerMovingButtoms:
+            keys = {pressed_button: True}
+        else:
+            keys = pygame.key.get_pressed()
 
         if pressed_buttons := tuple(move_method
                                     for move_method, button_id in self._directions.items()
-                                    if keys[button_id]):
+                                    if (isinstance(keys, dict) and keys.get(button_id)) or
+                                       (not isinstance(keys, dict) and keys[button_id])):
             pressed_buttons[0](surface=surface)
 
         else:

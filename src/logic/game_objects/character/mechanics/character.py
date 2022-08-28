@@ -1,12 +1,13 @@
-from dataclasses import dataclass, astuple
+from dataclasses import astuple
 from enum import Enum
 import os
 
 import pygame
 
-from logic.game_objects.position import Position
-from services.constants import GameConstants
-from services.load_resources import load_image
+from src.logic.game_objects.map.element import MapElementInGame
+from src.logic.game_objects.position import Position
+from src.services.constants import GameConstants
+from src.services.load_resources import load_image
 
 path_join = os.path.join
 
@@ -104,3 +105,10 @@ class Character(pygame.sprite.Sprite):
             raise TypeError('"handle_point" должен быть типа "Position" или "tuple" с двумя элементами')
 
         self._handle_point = value if isinstance(value, Position) else Position(*value)
+
+    def get_map_element_under_character(self) -> MapElementInGame:
+        from src.logic.game_objects.world import map_object
+        player_coords = self.coords
+        surface = map_object.get_element_by_coords(x=player_coords.x,
+                                                   y=player_coords.y,)
+        return surface

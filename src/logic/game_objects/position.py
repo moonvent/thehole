@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import IntEnum
 
-from logic.game_objects.character.action import ActionType
+from src.logic.game_objects.character.mechanics.action import ActionType
 
 
 class MoveDirection(IntEnum):
