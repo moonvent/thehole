@@ -3,6 +3,7 @@ import pygame
 from src.logic.game_objects.map.map import Map, map_object
 from src.logic.game_objects.character.player import Player
 from src.logic.game_objects.map.pattern import pattern
+from tests.logic.game_objects.map.patterns import MovingPatterns
 
 
 class World:
@@ -14,7 +15,9 @@ class World:
 
     def __init__(self,
                  screen: pygame.Surface,
-                 map_pattern: tuple[str, ...] = pattern):
+                 # map_pattern: tuple[str, ...] = pattern,
+                 map_pattern: tuple[str, ...] = MovingPatterns.pattern_1.value
+                 ):
         self.player = Player()
         global map_object
         map_object = map_object(surface=screen,

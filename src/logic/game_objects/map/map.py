@@ -6,11 +6,8 @@ from pygame.sprite import Sprite, Group
 from src.logic.game_objects.character.player import Player
 
 from src.logic.game_objects.map.element import MapElement, MapElementInGame, MapElements
-from src.logic.game_objects.map.pattern import pattern
-from src.logic.game_objects.position import Position
 from src.services.constants import Folders, GameConstants
 from src.services.load_resources import load_image
-from tests.logic.game_objects.map.patterns import MovingPatterns
 
 
 class Map:

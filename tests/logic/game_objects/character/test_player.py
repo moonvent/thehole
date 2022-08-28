@@ -17,9 +17,18 @@ class TestMoving:
     def test_move_to_elevation_up(self,
                                   moving_fixture):
         player, map = moving_fixture.player, moving_fixture.map
-        for i in range(40):
+
+        for i in range(40):         # 40 - константа для похода на равнину на карте MovingPatterns.pattern_1.value
             player.moving(pressed_button=pg_const.K_RIGHT)
 
-        print(player.player_level, player.rect)
         assert map.get_element_by_coords(player.coords.x, player.coords.y).map_level == player.player_level
+
+    # def test_move_to_dead_end(self,
+    #                           moving_fixture):
+    #     player, map = moving_fixture.player, moving_fixture.map
+    #
+    #     for i in range(40):         # 40 - константа для похода на равнину на карте MovingPatterns.pattern_1.value
+    #         player.moving(pressed_button=pg_const.K_RIGHT)
+    #
+    #     assert map.get_element_by_coords(player.coords.x, player.coords.y).map_level == player.player_level
 

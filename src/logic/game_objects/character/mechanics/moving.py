@@ -27,36 +27,23 @@ class _Lifting:
         self._player_level = lifting_direction
 
     def change_player_lifting(self,
-                              surface_lift: MapLevel,
-                              player_lift: MapLevel,
-                              action: ActionType):
+                              direction: MoveDirection.Left | MoveDirection.Right,
+                              surface_level: MapLevel,
+                              player_action: ActionType):
 
-        # print(62, surface_lift, player_lift, action)
-        match surface_lift:
-
-            case MapLevel.Usual if player_lift == MapLevel.Usual and action == ActionType.lifting_up:
+        if direction == MoveDirection.Left:
+            if player_action == ActionType.lifting_down and surface_level == MapLevel.ElevationUp:
                 self.player_level = MapLevel.ElevationUp
 
-            case MapLevel.Usual if player_lift == MapLevel.ElevationDown and action == ActionType.lifting_up:
+            if player_action == ActionType.lifting_up and surface_level == MapLevel.Usual:
                 self.player_level = MapLevel.Usual
 
-            case MapLevel.Usual if player_lift == MapLevel.ElevationUp and action == action.lifting_up:
-                pass
-
-            case MapLevel.Usual if player_lift == MapLevel.Usual and action == ActionType.lifting_down:
-                self.player_level = MapLevel.ElevationDown
-
-            case MapLevel.Usual if player_lift == MapLevel.ElevationUp and action == action.lifting_down:
+        else:
+            if player_action == ActionType.lifting_down and surface_level == MapLevel.Usual:
                 self.player_level = MapLevel.Usual
 
-            case MapLevel.Usual if player_lift == MapLevel.ElevationDown and action == action.lifting_down:
-                pass
-
-            case MapLevel.Usual if player_lift == MapLevel.Usual:
-                pass
-
-            case _:
-                raise Exception('Необработанная ситуация')
+            if player_action == ActionType.lifting_up and surface_level == MapLevel.ElevationUp:
+                self.player_level = MapLevel.ElevationUp
 
 
 class _ImageMoving:
@@ -217,33 +204,45 @@ class _Moving(_MapPosition,
             self.move_image(direction=MoveDirection.Down)
 
     def move_left(self, surface: MapElementInGame):
+        direction = MoveDirection.Left
 
         if self.check_next_position(current_surface=surface,
-                                    direction=MoveDirection.Left):
+                                    direction=direction):
             self.position_left()
-            self.move_image(direction=MoveDirection.Left)
+            self.move_image(direction=direction)
 
             if surface.action_type != ActionType.usual:
                 # из-за того что слева направо - главное направление - инвертируем стороны
                 self.last_action = ActionType.lifting_up if self._last_action == ActionType.lifting_down else ActionType.lifting_down
 
-            self.position_lifting(direction=MoveDirection.Left,
+            self.position_lifting(direction=direction,
                                   action_type=surface.action_type)
 
+            self.change_player_lifting(direction=direction,
+                                       surface_level=surface.map_level,
+                                       player_action=self.last_action)
+
     def move_right(self, surface: MapElementInGame):
+        direction = MoveDirection.Right
 
         if self.check_next_position(current_surface=surface,
-                                    direction=MoveDirection.Right):
+                                    direction=direction):
             self.position_right()
-            self.move_image(direction=MoveDirection.Right)
+            self.move_image(direction=direction)
 
             if surface.action_type != ActionType.usual:
                 self.last_action = surface.action_type
 
-            # print(self.last_action, surface.action_type, self.player_level, surface.map_level)
+            if self.last_action == ActionType.lifting_up and surface.map_level == MapLevel.ElevationUp:
+                self.player_level = MapLevel.ElevationUp
 
-            self.position_lifting(direction=MoveDirection.Right,
+            self.position_lifting(direction=direction,
                                   action_type=surface.action_type)
+
+            self.change_player_lifting(direction=direction,
+                                       surface_level=surface.map_level,
+                                       player_action=self.last_action)
+
 
     def stop(self,  surface: MapElementInGame, swap_sprite: bool = True):
         self.position_stop()
