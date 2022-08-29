@@ -1,11 +1,11 @@
 
 pattern = (
-    'ggbdcgg     g                                          ',
-    'eggegge                                                ',
-    'gggggdg                                                ',
-    'gdgggdg                                                ',
-    'gdggggg                                                ',
-    'ggggggg                                                ',
+    'ggbdcggg     g                                          ',
+    'eggeggeg                                               ',
+    'ggggbdgg                                               ',
+    'gdgggdgg                                               ',
+    'gdgggdcg                                               ',
+    'gggggggg                                               ',
     '                                                       ',
     '                                                       ',
     '                                                       ',

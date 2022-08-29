@@ -5,23 +5,19 @@ import pygame.locals as pg_const
 from src.logic.game_objects.world import World
 
 
-
 CoordsToDeadEndFromTop = ((150, 270),
-                          (150, 300),
-                          )
+                          (150, 300),)
 
 CoordsToDeadEndFromLeft = ((40, 440),
                            (100, 440),)
 
 CoordsToDeadEndFromRight = ((290, 440, 20),
                             (290, 440, 200),
-                            (290, 440, 100),
-                            )
+                            (290, 440, 100),)
 
 CoordsToDeadEndFromBottom = ((0, 500, 160, 0),
                              (0, 500, 160, 10),
-                             (0, 500, 160, 150),
-                             )
+                             (0, 500, 160, 150),)
 
 
 class TestMovingToDeadEnd:

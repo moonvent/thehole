@@ -17,8 +17,8 @@ class World:
 
     def __init__(self,
                  screen: pygame.Surface,
-                 # map_pattern: tuple[str, ...] = pattern,
-                 map_pattern: tuple[str, ...] = MovingPatterns.pattern_1.value
+                 map_pattern: tuple[str, ...] = pattern,
+                 # map_pattern: tuple[str, ...] = MovingPatterns.pattern_1.value
                  ):
         self.player = Player()
         global map_object

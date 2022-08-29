@@ -138,20 +138,19 @@ class _PreparingToNextStep:
         if x and y:
             next_element = map_object.get_element_by_coords(x=x,
                                                             y=y)
-            # next_element.sprite.image = Surface((128, 200))
-            # next_element.sprite.image.fill((random.randint(1, 255), 0, 0))
-            # next_element.sprite.rect = next_element.sprite.image.get_rect()
-            # next_element.sprite.rect.x = 128
-            # next_element.sprite.rect.y = 400
-            # print(next_element.sprite.rect)
-            # print(x, y)
-            # попробуй collide
 
             if not next_element:
                 return False
 
+            if self.last_action == ActionType.usual and \
+                    next_element.action_type == (ActionType.lifting_up if direction == MoveDirection.Left else ActionType.lifting_down):
+                return True
+
             if self.last_action == ActionType.usual and next_element.map_level != self.player_level:
                 return False
+
+            if next_element.map_level != MapLevel.ElevationUp and self.last_action != ActionType.usual:
+                self.last_action = ActionType.usual
 
         return True
 
@@ -205,11 +204,14 @@ class _Moving(_MapPosition,
         if self.check_next_position(current_surface=surface,
                                     direction=MoveDirection.Down):
             # когда на том же уровне что и карта
-            move = True
+            # move = True
 
-        elif surface.map_level == MapLevel.ElevationUp and self._last_action == ActionType.lifting_up:
-            # когда уже на возвышенности
-            if self.coords.y < surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight:
+            if surface.map_level == MapLevel.ElevationUp:
+                # когда уже на возвышенности
+                if self.coords.y < surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight:
+                    # print(self.coords.y, surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight)
+                    move = True
+            else:
                 move = True
 
         if move:
