@@ -164,18 +164,38 @@ class _Moving(_MapPosition,
     """
     _current_direction: MoveDirection = MoveDirection.Right
     _last_move_direction: MoveDirection = None
+    _surfaces_history: list[MapElementInGame] = None
+
+    def __init__(self):
+        self._surfaces_history = []
+
+    @property
+    def surfaces_history(self):
+        return self._surfaces_history
+
+    def add_surface_to_history(self,
+                               new_surface: MapElementInGame):
+        """
+            Для наблюдения поверхностей по которым ходит игрок
+        :param new_surface:
+        :return:
+        """
+        if not self.surfaces_history or new_surface != self.surfaces_history[-1]:
+            self._surfaces_history.append(new_surface)
 
     @property
     def direction(self):
         return self._current_direction
 
     @direction.setter
-    def direction(self, new_direction: MoveDirection):
+    def direction(self,
+                  new_direction: MoveDirection):
         if not isinstance(new_direction, MoveDirection):
             raise ValueError('new_direction is not "MoveDirection" type')
         self._current_direction = new_direction
 
-    def move_up(self, surface: MapElementInGame):
+    def move_up(self,
+                surface: MapElementInGame):
 
         self.last_action = ActionType.usual
 
@@ -195,7 +215,8 @@ class _Moving(_MapPosition,
             self.position_up()
             self.move_image(direction=MoveDirection.Up)
 
-    def move_down(self, surface: MapElementInGame):
+    def move_down(self,
+                  surface: MapElementInGame):
 
         self.last_action = ActionType.usual
 
@@ -218,7 +239,8 @@ class _Moving(_MapPosition,
             self.position_down()
             self.move_image(direction=MoveDirection.Down)
 
-    def move_left(self, surface: MapElementInGame):
+    def move_left(self,
+                  surface: MapElementInGame):
         direction = MoveDirection.Left
 
         if self.check_next_position(current_surface=surface,
@@ -237,7 +259,8 @@ class _Moving(_MapPosition,
                                        surface_level=surface.map_level,
                                        player_action=self.last_action)
 
-    def move_right(self, surface: MapElementInGame):
+    def move_right(self,
+                   surface: MapElementInGame):
         direction = MoveDirection.Right
 
         if self.check_next_position(current_surface=surface,
@@ -257,7 +280,10 @@ class _Moving(_MapPosition,
             self.change_player_lifting(direction=direction,
                                        surface_level=surface.map_level,
                                        player_action=self.last_action)
-    def stop(self,  surface: MapElementInGame, swap_sprite: bool = True):
+
+    def stop(self,
+             surface: MapElementInGame,
+             swap_sprite: bool = True):
         self.position_stop()
         if swap_sprite:
             self.move_image(MoveDirection.Stop)
@@ -270,6 +296,7 @@ class PlayerMovingMixin(_Moving):
     _directions: dict = None
 
     def __init__(self):
+        super().__init__()
         self._directions = {self.move_up: pg_consts.K_UP,
                             self.move_down: pg_consts.K_DOWN,
                             self.move_left: pg_consts.K_LEFT,
@@ -278,6 +305,8 @@ class PlayerMovingMixin(_Moving):
     def moving(self,
                surface: MapElementInGame,
                pressed_button: int | None = None):
+
+        self.add_surface_to_history(new_surface=surface)
 
         if pressed_button and pressed_button in GameConstants.PlayerMovingButtoms:
             keys = {pressed_button: True}

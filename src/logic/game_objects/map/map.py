@@ -77,7 +77,8 @@ class Map:
                     self._elements[(x, y)] = MapElementInGame(sprite=map_element,
                                                               action_type=map_element_const.action_type,
                                                               additional_sprites=additional_sprites,
-                                                              map_level=map_element_const.map_level)
+                                                              map_level=map_element_const.map_level,
+                                                              code=element)
 
                     for map_elem in (map_element, *additional_sprites):
                         self._elements_group.add(map_elem)

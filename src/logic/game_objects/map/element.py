@@ -90,19 +90,29 @@ class MapElementInGame:
     _above_player: bool = False
     additional_sprites: tuple[Sprite] = None
     _map_level: MapLevel = None
+    _code: str = None
 
     def __init__(self,
                  sprite: Sprite,
                  action_type: ActionType,
                  additional_sprites: Sprite | tuple[Sprite],
-                 map_level):
+                 map_level,
+                 code: str):
         self._sprite = sprite
         self._action_type = action_type
         self._map_level = map_level
+        self._code = code
 
         self.additional_sprites = additional_sprites if isinstance(additional_sprites, tuple) else (additional_sprites,)
         if len(self.additional_sprites) > 1:
             self.above_player = True
+
+    @property
+    def code(self):
+        """
+            Получаем код элемента
+        """
+        return self._code
 
     @property
     def map_level(self):
