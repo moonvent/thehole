@@ -257,8 +257,6 @@ class _Moving(_MapPosition,
             self.change_player_lifting(direction=direction,
                                        surface_level=surface.map_level,
                                        player_action=self.last_action)
-
-
     def stop(self,  surface: MapElementInGame, swap_sprite: bool = True):
         self.position_stop()
         if swap_sprite:
