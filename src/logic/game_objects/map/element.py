@@ -24,14 +24,15 @@ class MapElementLoadType(NamedTuple):
 class RectTypes:
     AllRect = (Rect(0, 0, GameConstants.WidthMapElement, GameConstants.HeightMapElement),)
     NoRect = ()
-    BotHighGround = (Rect(0, 55, GameConstants.WidthMapElement, GameConstants.HeightMapElement - 65 - 52),
-                     )
+
+    HalfHighGround = (Rect(0, 55, GameConstants.WidthMapElement, GameConstants.HeightMapElement - 65 - 52),)
+
     LeftToRightUp = (Rect(0, 100, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
-                     Rect(50, 60, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
-                     )
-    RightToLeftUp = (Rect(0, 60, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
-                     Rect(100, 100, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
-                     )
+                     Rect(50, 60, GameConstants.WidthMapElement, GameConstants.HeightMapElement),)
+    RightToLeftUp = (Rect(0, 100, GameConstants.WidthMapElement, GameConstants.HeightMapElement),)
+
+    TopHighGround = (Rect(0, 55, GameConstants.WidthMapElement, GameConstants.HeightMapElement),)
+    BotHighGround = (Rect(0, 0, GameConstants.WidthMapElement, GameConstants.HeightMapElement - 65 - 52),)
 
 
 
@@ -42,15 +43,15 @@ MapElements = {
                                               RectTypes.LeftToRightUp,
                                               action_type=ActionType.lifting_up),
                Literals.c: MapElementLoadType('tileGrass_slopeRight_grass.png', DirectionsConsts.XMoving, RectTypes.RightToLeftUp, action_type=ActionType.lifting_down),
-               Literals.d: MapElementLoadType('tileGrass_grass.png', DirectionsConsts.AllDirections, RectTypes.BotHighGround, map_level=MapLevel.ElevationUp),
+               Literals.d: MapElementLoadType('tileGrass_grass.png', DirectionsConsts.AllDirections, RectTypes.HalfHighGround, map_level=MapLevel.ElevationUp),
                Literals.e: MapElementLoadType(('grass.png',
                                                'foliageFewTree_green.png'), DirectionsConsts.AllDirections, RectTypes.AllRect),
                # 'f': MapElementLoadType('tileGrass_slope.png'),
                Literals.g: MapElementLoadType('grass.png', DirectionsConsts.AllDirections, RectTypes.AllRect, ),
                Literals.h: MapElementLoadType('high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
                Literals.i: MapElementLoadType('bot_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.BotHighGround, map_level=MapLevel.ElevationUp),
-               Literals.j: MapElementLoadType('top_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
-               Literals.k: MapElementLoadType('center_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
+               Literals.j: MapElementLoadType('top_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.TopHighGround, map_level=MapLevel.ElevationUp),
+               Literals.k: MapElementLoadType('center_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.AllRect, map_level=MapLevel.ElevationUp),
                # 'l': MapElementLoadType('', ActionType.usual),
                # 'm': MapElementLoadType('', ActionType.usual),
                # 'n': MapElementLoadType('', ActionType.usual),

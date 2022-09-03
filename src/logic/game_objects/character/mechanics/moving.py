@@ -124,8 +124,12 @@ class _PreparingToNextStep:
         :return: если нельзя - false, иначе - true
         """
         match direction:
+
             case MoveDirection.Left if surface.code == Literals.b:
-                current_player_pos.x = GameConstants.WidthMapElement - current_player_pos.x
+                return True
+
+            case MoveDirection.Right if surface.code == Literals.c:
+                return True
 
         if rects_for_walk := surface.available_walk_side:
             for rect_for_walk in rects_for_walk:
@@ -159,12 +163,17 @@ class _PreparingToNextStep:
         match direction:
 
             case MoveDirection.Up if self.rect.top < current_surace_rect.y:
-                x, y = self.rect.centerx, self.rect.bottom - GameConstants.DefaultStepPixels
+                if current_surface.code in (Literals.b, Literals.c):
+                    return False
 
+                x, y = self.rect.centerx, self.rect.bottom - GameConstants.DefaultStepPixels
                 if current_player_pos.y > GameConstants.DefaultStepPixels:
                     current_player_pos.y -= GameConstants.DefaultStepPixels
 
             case MoveDirection.Down if self.rect.bottom > current_surace_rect.y:
+                if current_surface.code in (Literals.b, Literals.c):
+                    return False
+
                 x, y = self.rect.centerx, self.rect.bottom + GameConstants.DefaultStepPixels
                 if current_player_pos.y < GameConstants.HeightMapElement - GameConstants.DefaultStepPixels:
                     current_player_pos.y += GameConstants.DefaultStepPixels
