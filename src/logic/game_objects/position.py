@@ -1,15 +1,8 @@
 from dataclasses import dataclass
-from enum import IntEnum
 
 from src.logic.game_objects.character.mechanics.action import ActionType
-
-
-class MoveDirection(IntEnum):
-    Left = 0
-    Right = 1
-    Up = 2
-    Down = 3
-    Stop = 4
+from src.logic.game_objects.character.mechanics.directions import MoveDirection
+from src.logic.game_objects.map.element import MapElementInGame
 
 
 @dataclass
@@ -27,6 +20,21 @@ class _MapPosition:
     _position: Position = None
     _next_position: Position = None
     _step_up: int = None
+    _surfaces_history: list[MapElementInGame] = None
+
+    def add_surface_to_history(self,
+                               new_surface: MapElementInGame):
+        """
+            Для наблюдения поверхностей по которым ходит игрок
+        :param new_surface:
+        :return:
+        """
+        if not self.surfaces_history or new_surface != self.surfaces_history[-1]:
+            self._surfaces_history.append(new_surface)
+
+    @property
+    def surfaces_history(self):
+        return self._surfaces_history
 
     @property
     def position(self):

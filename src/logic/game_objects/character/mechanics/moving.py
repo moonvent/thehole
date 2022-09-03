@@ -7,7 +7,8 @@ from pygame.surface import Surface
 from src.logic.game_objects.character.mechanics.action import ActionType
 from src.logic.game_objects.map.element import MapElementInGame
 from src.logic.game_objects.map.level import MapLevel
-from src.logic.game_objects.position import _MapPosition, MoveDirection
+from src.logic.game_objects.map.pattern import Literals
+from src.logic.game_objects.position import _MapPosition, MoveDirection, Position
 import pygame.locals as pg_consts
 
 from src.services.constants import GameConstants
@@ -111,6 +112,30 @@ class _PreparingToNextStep:
             raise TypeError('"_last_action" должен быть типа "ActionType"')
         self._last_action = value
 
+    def check_available_walk(self,
+                             surface: MapElementInGame,
+                             current_player_pos: Position,
+                             direction: MoveDirection) -> bool:
+        """
+            Проверка на возможность ходить по поверхности
+        :param direction:
+        :param surface: поверхность на которой персонаж
+        :param current_player_pos: текущая его позиция
+        :return: если нельзя - false, иначе - true
+        """
+        match direction:
+            case MoveDirection.Left if surface.code == Literals.b:
+                current_player_pos.x = GameConstants.WidthMapElement - current_player_pos.x
+
+        if rects_for_walk := surface.available_walk_side:
+            for rect_for_walk in rects_for_walk:
+                if rect_for_walk.collidepoint(current_player_pos.x,
+                                              current_player_pos.y):
+                    return True
+
+            else:
+                return False
+
     def check_next_position(self,
                             current_surface: MapElementInGame,
                             direction: MoveDirection) -> bool:
@@ -121,19 +146,41 @@ class _PreparingToNextStep:
         :return: можно или нет идти на следующий блок
         """
         from src.logic.game_objects.world import map_object
+
+        if not current_surface:
+            return False
+
         current_surace_rect = current_surface.sprite.rect
 
         x, y = 0, 0
+        current_player_pos = Position(self.coords.x - (self.coords.x // GameConstants.WidthMapElement * GameConstants.WidthMapElement),
+                                      self.coords.y - (self.coords.y // GameConstants.HeightMapElement * GameConstants.HeightMapElement))
 
         match direction:
+
             case MoveDirection.Up if self.rect.top < current_surace_rect.y:
                 x, y = self.rect.centerx, self.rect.bottom - GameConstants.DefaultStepPixels
+
+                if current_player_pos.y > GameConstants.DefaultStepPixels:
+                    current_player_pos.y -= GameConstants.DefaultStepPixels
+
             case MoveDirection.Down if self.rect.bottom > current_surace_rect.y:
                 x, y = self.rect.centerx, self.rect.bottom + GameConstants.DefaultStepPixels
+                if current_player_pos.y < GameConstants.HeightMapElement - GameConstants.DefaultStepPixels:
+                    current_player_pos.y += GameConstants.DefaultStepPixels
+
             case MoveDirection.Left if self.rect.left < current_surace_rect.x:
                 x, y = self.rect.left, self.rect.bottom
+                if current_player_pos.x > GameConstants.DefaultStepPixels:
+                    current_player_pos.x -= GameConstants.DefaultStepPixels
+
             case MoveDirection.Right if self.rect.right > current_surace_rect.x:
                 x, y = self.rect.right, self.rect.bottom
+                if current_player_pos.x < GameConstants.WidthMapElement - GameConstants.DefaultStepPixels:
+                    current_player_pos.x += GameConstants.DefaultStepPixels
+
+            case _:
+                return True
 
         if x and y:
             next_element = map_object.get_element_by_coords(x=x,
@@ -142,17 +189,50 @@ class _PreparingToNextStep:
             if not next_element:
                 return False
 
-            if self.last_action == ActionType.usual and \
-                    next_element.action_type == (ActionType.lifting_up if direction == MoveDirection.Left else ActionType.lifting_down):
-                return True
+            if next_element.code == Literals.d and current_surface.code in (Literals.b, Literals.c):
+                ...
 
-            if self.last_action == ActionType.usual and next_element.map_level != self.player_level:
+            # elif next_element.code == current_surface.code == Literals.d:
+            #     ...
+
+            elif not self.check_available_walk(surface=next_element,
+                                               current_player_pos=current_player_pos,
+                                               direction=direction):
                 return False
 
-            if next_element.map_level != MapLevel.ElevationUp and self.last_action != ActionType.usual:
-                self.last_action = ActionType.usual
+            # print(self.surfaces_history[-1].code, next_element.code)
 
-        return True
+            match next_element.code:
+                # проверяем следующий элемент на который ступит игрок с текущим, кейсы рассчитаны на след. элемент,
+                # логика в кейсах на текущий
+
+                case Literals.d:
+                    # хайграунд трава
+                    return current_surface.code in (Literals.b, Literals.d, Literals.c)
+
+                case Literals.b:
+                    # подъём вправо
+                    match current_surface.code:
+                        case Literals.g if self.direction == MoveDirection.Right:
+                            return True
+                        case Literals.b | Literals.d | Literals.j:
+                            return True
+
+                case Literals.c:
+                    # спуск вправо
+                    match current_surface.code:
+                        case Literals.g if self.direction == MoveDirection.Left:
+                            return True
+                        case Literals.c | Literals.d | Literals.i:
+                            return True
+
+                case Literals.g | Literals.e:
+                    #   обычная земля / ёлки
+                    return current_surface.code in (Literals.b, Literals.c, Literals.g, Literals.e)
+
+                case Literals.k | Literals.j | Literals.i | Literals.k:
+                    # длинный хайграунд
+                    return current_surface.code in (Literals.h, Literals.k, Literals.j, Literals.i, Literals.b, Literals.c)
 
 
 class _Moving(_MapPosition,
@@ -164,24 +244,9 @@ class _Moving(_MapPosition,
     """
     _current_direction: MoveDirection = MoveDirection.Right
     _last_move_direction: MoveDirection = None
-    _surfaces_history: list[MapElementInGame] = None
 
     def __init__(self):
         self._surfaces_history = []
-
-    @property
-    def surfaces_history(self):
-        return self._surfaces_history
-
-    def add_surface_to_history(self,
-                               new_surface: MapElementInGame):
-        """
-            Для наблюдения поверхностей по которым ходит игрок
-        :param new_surface:
-        :return:
-        """
-        if not self.surfaces_history or new_surface != self.surfaces_history[-1]:
-            self._surfaces_history.append(new_surface)
 
     @property
     def direction(self):
@@ -197,19 +262,20 @@ class _Moving(_MapPosition,
     def move_up(self,
                 surface: MapElementInGame):
 
+        self.direction = direction = MoveDirection.Up
         self.last_action = ActionType.usual
 
         move = False
 
         if self.check_next_position(current_surface=surface,
                                     direction=MoveDirection.Up):
-            # когда на том же уровне что и карта
+            # print(self.coords.x - (self.coords.x // GameConstants.WidthMapElement * GameConstants.WidthMapElement),
+            #       self.coords.y - (self.coords.y // GameConstants.HeightMapElement * GameConstants.HeightMapElement),
+            #       surface.sprite.rect,
+            #       self.handle_point,
+            #       surface.available_work_side[0].collidepoint(self.handle_point.x,
+            #                                                   self.handle_point.y,))
             move = True
-
-        elif surface.map_level == MapLevel.ElevationUp and self._last_action == ActionType.lifting_up:
-            # когда уже на возвышенности
-            if self.coords.y > surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundTopHeight:
-                move = True
 
         if move:
             self.position_up()
@@ -217,7 +283,7 @@ class _Moving(_MapPosition,
 
     def move_down(self,
                   surface: MapElementInGame):
-
+        self.direction = direction = MoveDirection.Down
         self.last_action = ActionType.usual
 
         move = False
@@ -225,15 +291,27 @@ class _Moving(_MapPosition,
         if self.check_next_position(current_surface=surface,
                                     direction=MoveDirection.Down):
             # когда на том же уровне что и карта
+            move = True
+
+            # print(surface.sprite.rect,
+            #       self.rect.midbottom,
+            #       surface.available_work_side,
+            #       surface.available_work_side[0].collidepoint(self.coords.x - (self.coords.x // GameConstants.WidthMapElement * GameConstants.WidthMapElement),
+            #                                                   self.coords.y - (self.coords.y // GameConstants.HeightMapElement * GameConstants.HeightMapElement)) if surface.available_work_side else False,
+            #       self.coords,
+            #       self.coords.x - (self.coords.x // GameConstants.WidthMapElement * GameConstants.WidthMapElement),
+            #       self.coords.y - (self.coords.y // GameConstants.HeightMapElement * GameConstants.HeightMapElement),
+            #       )
             # move = True
 
-            if surface.map_level == MapLevel.ElevationUp:
+            # if surface.map_level == MapLevel.ElevationUp:
                 # когда уже на возвышенности
-                if self.coords.y < surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight:
-                    # print(self.coords.y, surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight)
-                    move = True
-            else:
-                move = True
+                # if self.coords.y < surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight:
+                #     # print(self.coords.y, surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight)
+                #     move = True
+                # ...
+            # else:
+            #     move = True
 
         if move:
             self.position_down()
@@ -241,7 +319,7 @@ class _Moving(_MapPosition,
 
     def move_left(self,
                   surface: MapElementInGame):
-        direction = MoveDirection.Left
+        self.direction = direction = MoveDirection.Left
 
         if self.check_next_position(current_surface=surface,
                                     direction=direction):
@@ -261,7 +339,7 @@ class _Moving(_MapPosition,
 
     def move_right(self,
                    surface: MapElementInGame):
-        direction = MoveDirection.Right
+        self.direction = direction = MoveDirection.Right
 
         if self.check_next_position(current_surface=surface,
                                     direction=direction):

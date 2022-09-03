@@ -1,31 +1,56 @@
 from typing import NamedTuple
 
+from pygame import Rect
+
 from src.logic.game_objects.character.mechanics.action import ActionType
 from pygame.sprite import Sprite
 from pygame.surface import Surface
 
 from src.logic.game_objects.map.level import MapLevel
+from src.logic.game_objects.character.mechanics.directions import MoveDirection, DirectionsConsts
+from src.logic.game_objects.map.pattern import Literals
+from src.services.constants import GameConstants
 
 
 class MapElementLoadType(NamedTuple):
     path: str | tuple[str, ...]
+    directions: tuple[MoveDirection]
+    available_walk_side: tuple[Rect, ...]
 
     action_type: ActionType = ActionType.usual
     map_level: MapLevel = MapLevel.Usual
 
 
-MapElements = {'a': MapElementLoadType('tileGrass_slope_half.png'),
-               'b': MapElementLoadType('tileGrass_slopeLeft_grass.png', ActionType.lifting_up),
-               'c': MapElementLoadType('tileGrass_slopeRight_grass.png', ActionType.lifting_down),
-               'd': MapElementLoadType('tileGrass_grass.png', map_level=MapLevel.ElevationUp),
-               'e': MapElementLoadType(('grass.png',
-                                        'foliageFewTree_green.png')),
-               'f': MapElementLoadType('tileGrass_slope.png'),
-               'g': MapElementLoadType('grass.png'),
-               # 'h': MapElementLoadType('', ActionType.usual),
-               # 'i': MapElementLoadType('', ActionType.usual),
-               # 'j': MapElementLoadType('', ActionType.usual),
-               # 'k': MapElementLoadType('', ActionType.usual),
+class RectTypes:
+    AllRect = (Rect(0, 0, GameConstants.WidthMapElement, GameConstants.HeightMapElement),)
+    NoRect = ()
+    BotHighGround = (Rect(0, 55, GameConstants.WidthMapElement, GameConstants.HeightMapElement - 65 - 52),
+                     )
+    LeftToRightUp = (Rect(0, 100, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
+                     Rect(50, 60, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
+                     )
+    RightToLeftUp = (Rect(0, 60, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
+                     Rect(100, 100, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
+                     )
+
+
+
+MapElements = {
+               # 'a': MapElementLoadType('tileGrass_slope_half.png', DirectionsConsts.AllDirections),
+               Literals.b: MapElementLoadType('tileGrass_slopeLeft_grass.png',
+                                              DirectionsConsts.XMoving,
+                                              RectTypes.LeftToRightUp,
+                                              action_type=ActionType.lifting_up),
+               Literals.c: MapElementLoadType('tileGrass_slopeRight_grass.png', DirectionsConsts.XMoving, RectTypes.RightToLeftUp, action_type=ActionType.lifting_down),
+               Literals.d: MapElementLoadType('tileGrass_grass.png', DirectionsConsts.AllDirections, RectTypes.BotHighGround, map_level=MapLevel.ElevationUp),
+               Literals.e: MapElementLoadType(('grass.png',
+                                               'foliageFewTree_green.png'), DirectionsConsts.AllDirections, RectTypes.AllRect),
+               # 'f': MapElementLoadType('tileGrass_slope.png'),
+               Literals.g: MapElementLoadType('grass.png', DirectionsConsts.AllDirections, RectTypes.AllRect, ),
+               Literals.h: MapElementLoadType('high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
+               Literals.i: MapElementLoadType('bot_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.BotHighGround, map_level=MapLevel.ElevationUp),
+               Literals.j: MapElementLoadType('top_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
+               Literals.k: MapElementLoadType('center_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
                # 'l': MapElementLoadType('', ActionType.usual),
                # 'm': MapElementLoadType('', ActionType.usual),
                # 'n': MapElementLoadType('', ActionType.usual),
@@ -91,21 +116,31 @@ class MapElementInGame:
     additional_sprites: tuple[Sprite] = None
     _map_level: MapLevel = None
     _code: str = None
+    _directions: tuple[MoveDirection, ...] = None
+    _available_walk_side: tuple[Rect, ...] = None
 
     def __init__(self,
                  sprite: Sprite,
                  action_type: ActionType,
                  additional_sprites: Sprite | tuple[Sprite],
                  map_level,
-                 code: str):
+                 code: str,
+                 directions: tuple[MoveDirection, ...],
+                 available_walk_side: tuple[Rect, ...]):
         self._sprite = sprite
         self._action_type = action_type
         self._map_level = map_level
         self._code = code
+        self._directions = directions
+        self._available_walk_side = available_walk_side
 
         self.additional_sprites = additional_sprites if isinstance(additional_sprites, tuple) else (additional_sprites,)
         if len(self.additional_sprites) > 1:
             self.above_player = True
+
+    @property
+    def available_walk_side(self):
+        return self._available_walk_side
 
     @property
     def code(self):

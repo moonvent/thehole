@@ -78,7 +78,9 @@ class Map:
                                                               action_type=map_element_const.action_type,
                                                               additional_sprites=additional_sprites,
                                                               map_level=map_element_const.map_level,
-                                                              code=element)
+                                                              code=element,
+                                                              directions=map_element_const.directions,
+                                                              available_walk_side=map_element_const.available_walk_side)
 
                     for map_elem in (map_element, *additional_sprites):
                         self._elements_group.add(map_elem)
