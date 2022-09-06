@@ -188,8 +188,10 @@ class _PreparingToNextStep:
                 if current_player_pos.x < GameConstants.WidthMapElement - GameConstants.DefaultStepPixels:
                     current_player_pos.x += GameConstants.DefaultStepPixels
 
-            case _:
-                return True
+        if not self.check_available_walk(surface=current_surface,
+                                         current_player_pos=current_player_pos,
+                                         direction=direction):
+            return False
 
         if x and y:
             next_element = map_object.get_element_by_coords(x=x,
@@ -204,10 +206,6 @@ class _PreparingToNextStep:
             # elif next_element.code == current_surface.code == Literals.d:
             #     ...
 
-            elif not self.check_available_walk(surface=next_element,
-                                               current_player_pos=current_player_pos,
-                                               direction=direction):
-                return False
 
             # print(self.surfaces_history[-1].code, next_element.code)
 
@@ -217,7 +215,7 @@ class _PreparingToNextStep:
 
                 case Literals.d:
                     # хайграунд трава
-                    return current_surface.code in (Literals.b, Literals.d, Literals.c)
+                    return current_surface.code in (Literals.b, Literals.d, Literals.c, Literals.l, Literals.m)
 
                 case Literals.b:
                     # подъём вправо
@@ -235,13 +233,31 @@ class _PreparingToNextStep:
                         case Literals.c | Literals.d | Literals.i:
                             return True
 
+                case Literals.m:
+                    # подъём вправо
+                    match current_surface.code:
+                        case Literals.g if self.direction == MoveDirection.Right:
+                            return True
+                        case Literals.m | Literals.k | Literals.j | Literals.i | Literals.k:
+                            return True
+
+                case Literals.l:
+                    # спуск вправо
+                    match current_surface.code:
+                        case Literals.g if self.direction == MoveDirection.Left:
+                            return True
+                        case Literals.l | Literals.k | Literals.j | Literals.i | Literals.k:
+                            return True
+
                 case Literals.g | Literals.e:
                     #   обычная земля / ёлки
-                    return current_surface.code in (Literals.b, Literals.c, Literals.g, Literals.e)
+                    return current_surface.code in (Literals.b, Literals.c, Literals.g, Literals.e, Literals.l, Literals.m)
 
                 case Literals.k | Literals.j | Literals.i | Literals.k:
                     # длинный хайграунд
-                    return current_surface.code in (Literals.h, Literals.k, Literals.j, Literals.i, Literals.b, Literals.c)
+                    return current_surface.code in (Literals.h, Literals.k, Literals.j, Literals.i, Literals.b, Literals.c, Literals.l, Literals.m)
+        else:
+            return True
 
 
 class _Moving(_MapPosition,
@@ -278,12 +294,6 @@ class _Moving(_MapPosition,
 
         if self.check_next_position(current_surface=surface,
                                     direction=MoveDirection.Up):
-            # print(self.coords.x - (self.coords.x // GameConstants.WidthMapElement * GameConstants.WidthMapElement),
-            #       self.coords.y - (self.coords.y // GameConstants.HeightMapElement * GameConstants.HeightMapElement),
-            #       surface.sprite.rect,
-            #       self.handle_point,
-            #       surface.available_work_side[0].collidepoint(self.handle_point.x,
-            #                                                   self.handle_point.y,))
             move = True
 
         if move:
@@ -299,28 +309,7 @@ class _Moving(_MapPosition,
 
         if self.check_next_position(current_surface=surface,
                                     direction=MoveDirection.Down):
-            # когда на том же уровне что и карта
             move = True
-
-            # print(surface.sprite.rect,
-            #       self.rect.midbottom,
-            #       surface.available_work_side,
-            #       surface.available_work_side[0].collidepoint(self.coords.x - (self.coords.x // GameConstants.WidthMapElement * GameConstants.WidthMapElement),
-            #                                                   self.coords.y - (self.coords.y // GameConstants.HeightMapElement * GameConstants.HeightMapElement)) if surface.available_work_side else False,
-            #       self.coords,
-            #       self.coords.x - (self.coords.x // GameConstants.WidthMapElement * GameConstants.WidthMapElement),
-            #       self.coords.y - (self.coords.y // GameConstants.HeightMapElement * GameConstants.HeightMapElement),
-            #       )
-            # move = True
-
-            # if surface.map_level == MapLevel.ElevationUp:
-                # когда уже на возвышенности
-                # if self.coords.y < surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight:
-                #     # print(self.coords.y, surface.sprite.rect.y + GameConstants.HeightMapElement - GameConstants.HighGroundBottomHeight)
-                #     move = True
-                # ...
-            # else:
-            #     move = True
 
         if move:
             self.position_down()

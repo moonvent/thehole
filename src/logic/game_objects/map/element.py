@@ -29,10 +29,11 @@ class RectTypes:
 
     LeftToRightUp = (Rect(0, 100, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
                      Rect(50, 60, GameConstants.WidthMapElement, GameConstants.HeightMapElement),)
-    RightToLeftUp = (Rect(0, 100, GameConstants.WidthMapElement, GameConstants.HeightMapElement),)
+    RightToLeftUp = (Rect(50, 110, GameConstants.WidthMapElement, GameConstants.HeightMapElement),
+                     Rect(0, 50, 100, GameConstants.HeightMapElement))
 
-    TopHighGround = (Rect(0, 55, GameConstants.WidthMapElement, GameConstants.HeightMapElement),)
-    BotHighGround = (Rect(0, 0, GameConstants.WidthMapElement, GameConstants.HeightMapElement - 65 - 52),)
+    TopHighGround = (Rect(0, 0, GameConstants.WidthMapElement, GameConstants.HeightMapElement),)
+    BotHighGround = (Rect(0, 0, GameConstants.WidthMapElement, GameConstants.HeightMapElement - 65),)
 
 
 
@@ -52,7 +53,8 @@ MapElements = {
                Literals.i: MapElementLoadType('bot_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.BotHighGround, map_level=MapLevel.ElevationUp),
                Literals.j: MapElementLoadType('top_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.TopHighGround, map_level=MapLevel.ElevationUp),
                Literals.k: MapElementLoadType('center_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.AllRect, map_level=MapLevel.ElevationUp),
-               # 'l': MapElementLoadType('', ActionType.usual),
+               Literals.l: MapElementLoadType('big_tileGrass_slopeRight_grass.png', DirectionsConsts.AllDirections, RectTypes.AllRect, action_type=ActionType.lifting_down),
+               Literals.m: MapElementLoadType('big_tileGrass_slopeLeft_grass.png', DirectionsConsts.AllDirections, RectTypes.AllRect, action_type=ActionType.lifting_up),
                # 'm': MapElementLoadType('', ActionType.usual),
                # 'n': MapElementLoadType('', ActionType.usual),
                # 'o': MapElementLoadType('', ActionType.usual),

@@ -10,8 +10,8 @@ class Literals:
     i = 'i'
     j = 'j'
     k = 'k'
-    # a = 'a'
-    # a = 'a'
+    l = 'l'
+    m = 'm'
     # a = 'a'
     # a = 'a'
     # a = 'a'
@@ -26,9 +26,9 @@ class Literals:
 pattern = (
     'ggbdddddcggg                                           ',
     'eggeggeggggg                                           ',
-    'ggggbjgggggg                                           ',
+    'ggggmjgggggg                                           ',
     'gdgggkgggggg                                           ',
-    'gdgggicggggg                                           ',
+    'gdgggilggggg                                           ',
     'gggggggggggg                                           ',
     '                                                       ',
     '                                                       ',
