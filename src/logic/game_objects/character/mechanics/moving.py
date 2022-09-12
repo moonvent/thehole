@@ -405,3 +405,19 @@ class PlayerMovingMixin(_Moving):
             self.stop(swap_sprite=True,
                       surface=surface)
             return False
+
+    def set_next_location_position(self):
+        match self.direction:
+            case MoveDirection.Up:
+                self.next_position.y = GameConstants.HeightMapElement * GameConstants.AmountRowsInMap - GameConstants.PlayerHeight / 2
+
+            case MoveDirection.Down:
+                self.next_position.y = -GameConstants.HeightMapElement * GameConstants.AmountRowsInMap + GameConstants.PlayerHeight / 2
+
+            case MoveDirection.Left:
+                self.next_position.x = GameConstants.WidthMapElement * GameConstants.AmountColumnsInMap - GameConstants.PlayerWidth / 2
+
+            case MoveDirection.Right:
+                self.next_position.x = -GameConstants.WidthMapElement * GameConstants.AmountColumnsInMap + GameConstants.PlayerWidth / 2
+
+        self.moving()

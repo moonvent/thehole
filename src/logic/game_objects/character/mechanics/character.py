@@ -81,7 +81,7 @@ class Character(pygame.sprite.Sprite):
 
     def update(self):
         self.rect = self.rect.move(astuple(self.next_position))
-        pygame.event.pump()
+        # pygame.event.pump()
 
     @property
     def coords(self) -> Position:

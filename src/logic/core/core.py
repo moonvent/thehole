@@ -56,6 +56,7 @@ class Core:
         if self.player.moving() is None:
             if self.map.player_achieve_end_of_location():
                 pg.display.update()
+                self.player.set_next_location_position()
 
     def refresh_screen(self):
         from_point, to_point = self.map.repaint(player=self.world.player)

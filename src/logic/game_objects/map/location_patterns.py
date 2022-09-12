@@ -35,7 +35,7 @@ class Sides:
     Left = (MoveDirection.Left,)
     Top = (MoveDirection.Up,)
     Right = (MoveDirection.Right,)
-    Buttom = (MoveDirection.Down,)
+    Bottom = (MoveDirection.Down,)
     RightBottom = (MoveDirection.Right, MoveDirection.Down)
 
 
@@ -93,7 +93,7 @@ locations = Locations(locations=(
         'ggggmjgggggggg',
         'gdgggkgggggggg',
         'gdgggilggggggg',
-    ), sides=Sides.Left,
+    ), sides=Sides.Bottom,
         next_locations=(1,)),
     Location(pattern=(
         'gggggggggggggg',
@@ -101,6 +101,6 @@ locations = Locations(locations=(
         'gggggggggggggg',
         'gggggggggggggg',
         'gggggggggggggg',
-    ), sides=Sides.Left,
+    ), sides=Sides.Top,
         next_locations=(0,)),)
 )
