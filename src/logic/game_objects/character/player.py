@@ -13,12 +13,14 @@ class Player(Character,
         PlayerMovingMixin.__init__(self)
 
     def moving(self,
-               pressed_button: int | None = None):
+               pressed_button: int | None = None) -> bool | None:
         surface = self.get_map_element_under_character()
-        super(Player, self).moving(surface, pressed_button=pressed_button)
+        next_element_exist = super(Player, self).moving(surface, pressed_button=pressed_button)
         self.update()
         # print(self.rect)
         # print(self.player_level)
         self.stop(swap_sprite=False,
                   surface=surface)
+
+        return next_element_exist
 

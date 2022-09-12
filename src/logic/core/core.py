@@ -14,8 +14,6 @@ class Core:
         pg.init()
 
         pg.display.set_caption(GameConstants.Title)
-        # self.screen: Surface = pg.display.set_mode((0, 0),
-        #                                            pygame.FULLSCREEN)
         self.screen: Surface = pg.display.set_mode((GameConstants.AmountColumnsInMap * GameConstants.WidthMapElement,
                                                     GameConstants.AmountRowsInMap * GameConstants.HeightMapElement,))
         self.world = World(screen=self.screen)
@@ -55,8 +53,9 @@ class Core:
         self.player_events()
 
     def player_events(self):
-        # self.player.moving(surface=self.level.get_current_surface(self.player))
-        self.player.moving()
+        if self.player.moving() is None:
+            if self.map.player_achieve_end_of_location():
+                pg.display.update()
 
     def refresh_screen(self):
         from_point, to_point = self.map.repaint(player=self.world.player)

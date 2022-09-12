@@ -6,7 +6,7 @@ from pygame.sprite import Sprite, Group
 from src.logic.game_objects.character.player import Player
 
 from src.logic.game_objects.map.element import MapElement, MapElementInGame, MapElements
-from src.logic.game_objects.map.location_patterns import Location
+from src.logic.game_objects.map.location_patterns import Location, locations
 from src.services.constants import Folders, GameConstants
 from src.services.load_resources import load_image
 
@@ -38,6 +38,10 @@ class Map:
         return self._player
 
     @property
+    def location(self):
+        return self._location
+
+    @property
     def map_surface(self):
         return self._display_surface
 
@@ -63,8 +67,11 @@ class Map:
         self._create_map()
 
     def _create_map(self):
-        # self._display_surface.fill()
-        self._elements.clear()
+        """
+            Создание карты, параллельно добавление всех элементов по координатам в словарь
+        :return:
+        """
+        self._elements_group.empty()
 
         for row_number, row in enumerate(self._location.pattern):
             for column_number, element in enumerate(row):
@@ -137,6 +144,17 @@ class Map:
         for sprite in self._update_after_player:
             self.map_surface.blit(sprite.image,
                                   sprite.rect)
+
+    def player_achieve_end_of_location(self):
+        """
+            Обновляем локацию и обновляем экран если игрок пришел к границе локации
+            :return: обновляем ли ВЕСЬ экран (из-за смены локации) или нет
+        """
+        if self.player.direction in self.location.available_sides:
+            next_location = locations[self.location.next_locations[self.location.available_sides.index(self.player.direction)]]
+            self.change_location(location=next_location)
+            self.draw()
+            return True
 
 
 map_object = Map

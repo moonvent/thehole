@@ -1,6 +1,3 @@
-import random
-from typing import Optional
-
 import pygame
 from pygame.surface import Surface
 
@@ -142,12 +139,12 @@ class _PreparingToNextStep:
 
     def check_next_position(self,
                             current_surface: MapElementInGame,
-                            direction: MoveDirection) -> bool:
+                            direction: MoveDirection) -> bool | None:
         """
             Получение следующего блока, и проверка его на возможность зайти на него
         :param direction: направления куда двигается персонаж
         :param current_surface: текущее место где стоит персонаж
-        :return: можно или нет идти на следующий блок
+        :return: можно или нет идти на следующий блок, и если следующего блока нет - None
         """
         from src.logic.game_objects.world import map_object
 
@@ -198,14 +195,13 @@ class _PreparingToNextStep:
                                                             y=y)
 
             if not next_element:
-                return False
+                return None
 
             if next_element.code == Literals.d and current_surface.code in (Literals.b, Literals.c):
                 ...
 
             # elif next_element.code == current_surface.code == Literals.d:
             #     ...
-
 
             # print(self.surfaces_history[-1].code, next_element.code)
 
@@ -285,42 +281,40 @@ class _Moving(_MapPosition,
         self._current_direction = new_direction
 
     def move_up(self,
-                surface: MapElementInGame):
+                surface: MapElementInGame) -> bool | None:
 
         self.direction = direction = MoveDirection.Up
         self.last_action = ActionType.usual
 
-        move = False
-
-        if self.check_next_position(current_surface=surface,
-                                    direction=MoveDirection.Up):
-            move = True
-
-        if move:
+        next_position = self.check_next_position(current_surface=surface,
+                                                 direction=MoveDirection.Up)
+        if next_position:
             self.position_up()
             self.move_image(direction=MoveDirection.Up)
+
+        return next_position
 
     def move_down(self,
                   surface: MapElementInGame):
         self.direction = direction = MoveDirection.Down
         self.last_action = ActionType.usual
 
-        move = False
-
-        if self.check_next_position(current_surface=surface,
-                                    direction=MoveDirection.Down):
-            move = True
-
-        if move:
+        next_position = self.check_next_position(current_surface=surface,
+                                                 direction=MoveDirection.Down)
+        if next_position:
             self.position_down()
             self.move_image(direction=MoveDirection.Down)
+
+        return next_position
 
     def move_left(self,
                   surface: MapElementInGame):
         self.direction = direction = MoveDirection.Left
 
-        if self.check_next_position(current_surface=surface,
-                                    direction=direction):
+        next_position = self.check_next_position(current_surface=surface,
+                                                 direction=direction)
+
+        if next_position:
             self.position_left()
             self.move_image(direction=direction)
 
@@ -335,12 +329,16 @@ class _Moving(_MapPosition,
                                        surface_level=surface.map_level,
                                        player_action=self.last_action)
 
+        return next_position
+
     def move_right(self,
                    surface: MapElementInGame):
         self.direction = direction = MoveDirection.Right
 
-        if self.check_next_position(current_surface=surface,
-                                    direction=direction):
+        next_position = self.check_next_position(current_surface=surface,
+                                                 direction=direction)
+
+        if next_position:
             self.position_right()
             self.move_image(direction=direction)
 
@@ -356,6 +354,8 @@ class _Moving(_MapPosition,
             self.change_player_lifting(direction=direction,
                                        surface_level=surface.map_level,
                                        player_action=self.last_action)
+
+        return next_position
 
     def stop(self,
              surface: MapElementInGame,
@@ -380,7 +380,13 @@ class PlayerMovingMixin(_Moving):
 
     def moving(self,
                surface: MapElementInGame,
-               pressed_button: int | None = None):
+               pressed_button: int | None = None) -> bool | None:
+        """
+            метод расчета и переноса персонажа
+        :param surface: место где стоим
+        :param pressed_button: нажатая кнопка
+        :return: можно или нет пройти на следующее место, если нет следующего элемента - None
+        """
 
         self.add_surface_to_history(new_surface=surface)
 
@@ -393,8 +399,9 @@ class PlayerMovingMixin(_Moving):
                                     for move_method, button_id in self._directions.items()
                                     if (isinstance(keys, dict) and keys.get(button_id)) or
                                        (not isinstance(keys, dict) and keys[button_id])):
-            pressed_buttons[0](surface=surface)
+            return pressed_buttons[0](surface=surface)
 
         else:
             self.stop(swap_sprite=True,
                       surface=surface)
+            return False

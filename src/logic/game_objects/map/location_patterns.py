@@ -1,3 +1,6 @@
+from src.logic.game_objects.character.mechanics.directions import MoveDirection
+
+
 class Literals:
     a = 'a'
     b = 'b'
@@ -28,23 +31,29 @@ class Sides:
         стороны в которые можно пройти, начиная всегда с левой
     """
 
-    All = (True,) * 4
-    Left = (True, ) + (False,) * 3
-    Top = (False, True, False, False)
-    Right = (False, False, True, False)
-    Buttom = (False,) * 3 + (True, )
-    RightBottom = (False, False, True, True)
+    All = (MoveDirection.Left, MoveDirection.Up, MoveDirection.Right, MoveDirection.Down)
+    Left = (MoveDirection.Left,)
+    Top = (MoveDirection.Up,)
+    Right = (MoveDirection.Right,)
+    Buttom = (MoveDirection.Down,)
+    RightBottom = (MoveDirection.Right, MoveDirection.Down)
 
 
 class Location:
     _pattern: tuple[str, ...] = None
-    _available_sides: tuple[bool, bool, bool, bool] = None
+    _available_sides: tuple[MoveDirection, ...] = None
+    _next_locations: tuple = None  # кортеж с индексами следующих локаций
+
+    # (индексами в кортеже locations), строго в той последовательности, что и стороны,
+    # то есть сторона индекс 0 - к ней локация с таким же индексом
 
     def __init__(self,
                  pattern: tuple[str, ...],
-                 sides: tuple[bool, bool, bool, bool]):
+                 sides: tuple[MoveDirection, ...],
+                 next_locations: tuple):
         self._pattern = pattern
         self._available_sides = sides
+        self._next_locations = next_locations
 
     @property
     def pattern(self):
@@ -53,6 +62,10 @@ class Location:
     @property
     def available_sides(self):
         return self._available_sides
+
+    @property
+    def next_locations(self):
+        return self._next_locations
 
 
 class Locations:
@@ -74,12 +87,20 @@ class Locations:
 
 
 locations = Locations(locations=(
-        Location(pattern=(
-            'ggbdddddcggggg',
-            'eggeggeggggggg',
-            'ggggmjgggggggg',
-            'gdgggkgggggggg',
-            'gdgggilggggggg',
-        ), sides=Sides.RightBottom),
-    )
+    Location(pattern=(
+        'ggbdddddcggggg',
+        'eggeggeggggggg',
+        'ggggmjgggggggg',
+        'gdgggkgggggggg',
+        'gdgggilggggggg',
+    ), sides=Sides.Left,
+        next_locations=(1,)),
+    Location(pattern=(
+        'gggggggggggggg',
+        'gggggggggggggg',
+        'gggggggggggggg',
+        'gggggggggggggg',
+        'gggggggggggggg',
+    ), sides=Sides.Left,
+        next_locations=(0,)),)
 )
