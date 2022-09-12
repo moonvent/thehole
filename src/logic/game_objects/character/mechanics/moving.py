@@ -7,7 +7,7 @@ from pygame.surface import Surface
 from src.logic.game_objects.character.mechanics.action import ActionType
 from src.logic.game_objects.map.element import MapElementInGame
 from src.logic.game_objects.map.level import MapLevel
-from src.logic.game_objects.map.pattern import Literals
+from src.logic.game_objects.map.location_patterns import Literals
 from src.logic.game_objects.position import _MapPosition, MoveDirection, Position
 import pygame.locals as pg_consts
 

@@ -29,6 +29,10 @@ class _GameConstant:
         width: int
         height: int
 
+    class _MapElementsSize:
+        _columns = 14
+        _rows = 5
+
     Size = _Size(800, 600)
 
     _amount_fps: int = 60
@@ -101,6 +105,14 @@ class _GameConstant:
     @property
     def HighGroundBottomHeight(self):
         return self._high_ground_bottom_height
+
+    @property
+    def AmountRowsInMap(self):
+        return self._MapElementsSize._rows
+
+    @property
+    def AmountColumnsInMap(self):
+        return self._MapElementsSize._columns
 
 
 GameConstants = _GameConstant()

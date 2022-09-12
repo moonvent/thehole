@@ -16,7 +16,8 @@ class Core:
         pg.display.set_caption(GameConstants.Title)
         # self.screen: Surface = pg.display.set_mode((0, 0),
         #                                            pygame.FULLSCREEN)
-        self.screen: Surface = pg.display.set_mode((1920, 1080))
+        self.screen: Surface = pg.display.set_mode((GameConstants.AmountColumnsInMap * GameConstants.WidthMapElement,
+                                                    GameConstants.AmountRowsInMap * GameConstants.HeightMapElement,))
         self.world = World(screen=self.screen)
         self.player = self.world.player
         self.map = self.world.map
@@ -43,7 +44,7 @@ class Core:
             event: EventType = event
 
             if event.type == pg_consts.QUIT:
-                return
+                quit(0)
 
             if event.type == pg_consts.KEYDOWN:
                 ...

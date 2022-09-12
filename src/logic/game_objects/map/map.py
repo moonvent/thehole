@@ -6,6 +6,7 @@ from pygame.sprite import Sprite, Group
 from src.logic.game_objects.character.player import Player
 
 from src.logic.game_objects.map.element import MapElement, MapElementInGame, MapElements
+from src.logic.game_objects.map.location_patterns import Location
 from src.services.constants import Folders, GameConstants
 from src.services.load_resources import load_image
 
@@ -15,14 +16,17 @@ class Map:
     _display_surface: Surface = None
     _elements: dict[tuple[int, int], MapElementInGame] = None
     _update_after_player: list[Sprite] = None
-    _map_pattern: tuple[str, ...] = None
+    _location: Location = None
+    _player: Player = None
 
     def __init__(self,
                  surface: Surface,
-                 map_pattern: tuple[str, ...]
+                 location: Location,
+                 player: Player
                  ):
         self._display_surface = surface
-        self._map_pattern = map_pattern
+        self._player = player
+        self._location = location
 
         self._elements = {}
         self._elements_group = Group()
@@ -30,11 +34,15 @@ class Map:
         self._create_map()
 
     @property
+    def player(self):
+        return self._player
+
+    @property
     def map_surface(self):
         return self._display_surface
 
     @property
-    def map_elements(self):
+    def map_elements(self) -> dict[tuple[int, int], MapElementInGame]:
         return self._elements
 
     def get_element_by_coords(self,
@@ -50,9 +58,15 @@ class Map:
         y = y // GameConstants.HeightMapElement * GameConstants.HeightMapElement
         return self.map_elements.get((x, y))
 
+    def change_location(self, location: Location):
+        self._location = location
+        self._create_map()
+
     def _create_map(self):
         # self._display_surface.fill()
-        for row_number, row in enumerate(self._map_pattern):
+        self._elements.clear()
+
+        for row_number, row in enumerate(self._location.pattern):
             for column_number, element in enumerate(row):
 
                 if map_element_const := MapElements.get(element):

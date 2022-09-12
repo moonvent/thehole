@@ -8,7 +8,7 @@ from pygame.surface import Surface
 
 from src.logic.game_objects.map.level import MapLevel
 from src.logic.game_objects.character.mechanics.directions import MoveDirection, DirectionsConsts
-from src.logic.game_objects.map.pattern import Literals
+from src.logic.game_objects.map.location_patterns import Literals
 from src.services.constants import GameConstants
 
 
