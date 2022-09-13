@@ -93,14 +93,14 @@ locations = Locations(locations=(
         'ggggmjgggggggg',
         'gdgggkgggggggg',
         'gdgggilggggggg',
-    ), sides=Sides.Bottom,
-        next_locations=(1,)),
+    ), sides=Sides.RightBottom,
+        next_locations=(1, 2,)),
     Location(pattern=(
         'gggggggggggggg',
         'gggggggggggggg',
         'gggggggggggggg',
         'gggggggggggggg',
         'gggggggggggggg',
-    ), sides=Sides.Top,
+    ), sides=Sides.Left,
         next_locations=(0,)),)
 )

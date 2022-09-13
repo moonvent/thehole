@@ -197,8 +197,8 @@ class _PreparingToNextStep:
             if not next_element:
                 return None
 
-            if next_element.code == Literals.d and current_surface.code in (Literals.b, Literals.c):
-                ...
+            # if next_element.code == Literals.d and current_surface.code in (Literals.b, Literals.c):
+            #     ...
 
             # elif next_element.code == current_surface.code == Literals.d:
             #     ...
@@ -220,6 +220,8 @@ class _PreparingToNextStep:
                             return True
                         case Literals.b | Literals.d | Literals.j:
                             return True
+                        case _:
+                            return False
 
                 case Literals.c:
                     # спуск вправо
@@ -285,6 +287,10 @@ class _Moving(_MapPosition,
 
         self.direction = direction = MoveDirection.Up
         self.last_action = ActionType.usual
+
+        if self.check_next_position(current_surface=surface,
+                                    direction=MoveDirection.Up) is None:
+            ...
 
         next_position = self.check_next_position(current_surface=surface,
                                                  direction=MoveDirection.Up)
@@ -407,6 +413,10 @@ class PlayerMovingMixin(_Moving):
             return False
 
     def set_next_location_position(self):
+        """
+            При переходе на новую локацию меняем позицию персонажа
+        :return:
+        """
         match self.direction:
             case MoveDirection.Up:
                 self.next_position.y = GameConstants.HeightMapElement * GameConstants.AmountRowsInMap - GameConstants.PlayerHeight / 2

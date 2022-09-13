@@ -5,7 +5,6 @@ import pygame
 from src.logic.game_objects.map.map import Map, map_object
 from src.logic.game_objects.character.player import Player
 from src.logic.game_objects.map.location_patterns import Locations, locations
-from tests.logic.game_objects.map.patterns import MovingPatterns
 
 
 class World:
