@@ -58,6 +58,7 @@ class Character(pygame.sprite.Sprite):
         self.spawn_point = spawn_point
         self._load_character_assets()
         self.handle_point = self.rect.midbottom
+        self.calculate_spawn_point()
 
     def _load_character_assets(self, folder_name: str = GameConstants.DefaulSkinFolder):
         """
@@ -77,7 +78,6 @@ class Character(pygame.sprite.Sprite):
         self._default_player_state = self.action_think
         self.image, self.rect = self._default_player_state, self._default_player_state.get_rect()
 
-        self.sprite = pygame.sprite.RenderPlain((self,))
 
     def update(self):
         self.rect = self.rect.move(astuple(self.next_position))
@@ -112,3 +112,8 @@ class Character(pygame.sprite.Sprite):
         surface = map_object.get_element_by_coords(x=player_coords.x,
                                                    y=player_coords.y,)
         return surface
+
+    def calculate_spawn_point(self):
+        self.next_position.x = self.spawn_point.x
+        self.next_position.y = self.spawn_point.y
+        self.update()

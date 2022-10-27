@@ -2,9 +2,10 @@ import pygame
 from pygame.surface import Surface
 
 from src.logic.game_objects.character.mechanics.action import ActionType
-from src.logic.game_objects.map.element import MapElementInGame
+from src.logic.game_objects.map.element import MapElementInGame, ElementAvailability
+from src.logic.game_objects.map.ground_available import _GroundAvailable
 from src.logic.game_objects.map.level import MapLevel
-from src.logic.game_objects.map.location_patterns import Literals
+from src.logic.game_objects.map.location_patterns import Literals, lcode
 from src.logic.game_objects.position import _MapPosition, MoveDirection, Position
 import pygame.locals as pg_consts
 
@@ -92,7 +93,7 @@ class _ImageMoving:
                     self.image = image
 
 
-class _PreparingToNextStep:
+class _PreparingToNextStep(_GroundAvailable):
     """
         Класс в котором расписаны методы просчитывания куда пойдет игрок на один блок,
         для того чтоб не заходил на возвышености
@@ -139,7 +140,7 @@ class _PreparingToNextStep:
 
     def check_next_position(self,
                             current_surface: MapElementInGame,
-                            direction: MoveDirection) -> bool | None:
+                            direction: MoveDirection) -> ElementAvailability:
         """
             Получение следующего блока, и проверка его на возможность зайти на него
         :param direction: направления куда двигается персонаж
@@ -149,7 +150,7 @@ class _PreparingToNextStep:
         from src.logic.game_objects.world import map_object
 
         if not current_surface:
-            return False
+            return ElementAvailability.NoStep
 
         current_surace_rect = current_surface.sprite.rect
 
@@ -160,16 +161,16 @@ class _PreparingToNextStep:
         match direction:
 
             case MoveDirection.Up if self.rect.top < current_surace_rect.y:
-                if current_surface.code in (Literals.b, Literals.c):
-                    return False
+                if current_surface.code in (Literals.b, Literals.c, lcode.l, lcode.m):
+                    return ElementAvailability.NoStep
 
                 x, y = self.rect.centerx, self.rect.bottom - GameConstants.DefaultStepPixels
                 if current_player_pos.y > GameConstants.DefaultStepPixels:
                     current_player_pos.y -= GameConstants.DefaultStepPixels
 
             case MoveDirection.Down if self.rect.bottom > current_surace_rect.y:
-                if current_surface.code in (Literals.b, Literals.c):
-                    return False
+                if current_surface.code in (Literals.b, Literals.c, lcode.l, lcode.m):
+                    return ElementAvailability.NoStep
 
                 x, y = self.rect.centerx, self.rect.bottom + GameConstants.DefaultStepPixels
                 if current_player_pos.y < GameConstants.HeightMapElement - GameConstants.DefaultStepPixels:
@@ -188,74 +189,17 @@ class _PreparingToNextStep:
         if not self.check_available_walk(surface=current_surface,
                                          current_player_pos=current_player_pos,
                                          direction=direction):
-            return False
+            return ElementAvailability.NoStep
 
         if x and y:
-            next_element = map_object.get_element_by_coords(x=x,
+            next_surface = map_object.get_element_by_coords(x=x,
                                                             y=y)
 
-            if not next_element:
-                return None
+            return self.check_ground_codes(next_surface=next_surface,
+                                           current_surface=current_surface)
 
-            # if next_element.code == Literals.d and current_surface.code in (Literals.b, Literals.c):
-            #     ...
-
-            # elif next_element.code == current_surface.code == Literals.d:
-            #     ...
-
-            # print(self.surfaces_history[-1].code, next_element.code)
-
-            match next_element.code:
-                # проверяем следующий элемент на который ступит игрок с текущим, кейсы рассчитаны на след. элемент,
-                # логика в кейсах на текущий
-
-                case Literals.d:
-                    # хайграунд трава
-                    return current_surface.code in (Literals.b, Literals.d, Literals.c, Literals.l, Literals.m)
-
-                case Literals.b:
-                    # подъём вправо
-                    match current_surface.code:
-                        case Literals.g if self.direction == MoveDirection.Right:
-                            return True
-                        case Literals.b | Literals.d | Literals.j:
-                            return True
-                        case _:
-                            return False
-
-                case Literals.c:
-                    # спуск вправо
-                    match current_surface.code:
-                        case Literals.g if self.direction == MoveDirection.Left:
-                            return True
-                        case Literals.c | Literals.d | Literals.i:
-                            return True
-
-                case Literals.m:
-                    # подъём вправо
-                    match current_surface.code:
-                        case Literals.g if self.direction == MoveDirection.Right:
-                            return True
-                        case Literals.m | Literals.k | Literals.j | Literals.i | Literals.k:
-                            return True
-
-                case Literals.l:
-                    # спуск вправо
-                    match current_surface.code:
-                        case Literals.g if self.direction == MoveDirection.Left:
-                            return True
-                        case Literals.l | Literals.k | Literals.j | Literals.i | Literals.k:
-                            return True
-
-                case Literals.g | Literals.e:
-                    #   обычная земля / ёлки
-                    return current_surface.code in (Literals.b, Literals.c, Literals.g, Literals.e, Literals.l, Literals.m)
-
-                case Literals.k | Literals.j | Literals.i | Literals.k:
-                    # длинный хайграунд
-                    return current_surface.code in (Literals.h, Literals.k, Literals.j, Literals.i, Literals.b, Literals.c, Literals.l, Literals.m)
         else:
-            return True
+            return ElementAvailability.Step
 
 
 class _Moving(_MapPosition,
@@ -288,13 +232,9 @@ class _Moving(_MapPosition,
         self.direction = direction = MoveDirection.Up
         self.last_action = ActionType.usual
 
-        if self.check_next_position(current_surface=surface,
-                                    direction=MoveDirection.Up) is None:
-            ...
-
         next_position = self.check_next_position(current_surface=surface,
                                                  direction=MoveDirection.Up)
-        if next_position:
+        if next_position == next_position.Step:
             self.position_up()
             self.move_image(direction=MoveDirection.Up)
 
@@ -307,7 +247,7 @@ class _Moving(_MapPosition,
 
         next_position = self.check_next_position(current_surface=surface,
                                                  direction=MoveDirection.Down)
-        if next_position:
+        if next_position == next_position.Step:
             self.position_down()
             self.move_image(direction=MoveDirection.Down)
 
@@ -320,13 +260,17 @@ class _Moving(_MapPosition,
         next_position = self.check_next_position(current_surface=surface,
                                                  direction=direction)
 
-        if next_position:
+        if next_position == next_position.Step:
             self.position_left()
             self.move_image(direction=direction)
 
             if surface.action_type != ActionType.usual:
                 # из-за того что слева направо - главное направление - инвертируем стороны
                 self.last_action = ActionType.lifting_up if self._last_action == ActionType.lifting_down else ActionType.lifting_down
+
+            # не знаю, не тестил
+            # if self.last_action == ActionType.lifting_down and surface.map_level == MapLevel.ElevationUp:
+            #     self.player_level = MapLevel.ElevationUp
 
             self.position_lifting(direction=direction,
                                   action_type=surface.action_type)
@@ -344,7 +288,7 @@ class _Moving(_MapPosition,
         next_position = self.check_next_position(current_surface=surface,
                                                  direction=direction)
 
-        if next_position:
+        if next_position == next_position.Step:
             self.position_right()
             self.move_image(direction=direction)
 
@@ -386,7 +330,7 @@ class PlayerMovingMixin(_Moving):
 
     def moving(self,
                surface: MapElementInGame,
-               pressed_button: int | None = None) -> bool | None:
+               pressed_button: int | None = None) -> ElementAvailability:
         """
             метод расчета и переноса персонажа
         :param surface: место где стоим

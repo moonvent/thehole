@@ -3,6 +3,7 @@ import pygame as pg
 from pygame.event import EventType
 from pygame.surface import Surface
 
+from src.logic.game_objects.map.element import ElementAvailability
 from src.logic.game_objects.world import World
 from src.services.constants import GameConstants
 
@@ -53,7 +54,7 @@ class Core:
         self.player_events()
 
     def player_events(self):
-        if self.player.moving() is None:
+        if self.player.moving() == ElementAvailability.MapBorder:
             if self.map.player_achieve_end_of_location():
                 pg.display.update()
                 self.player.set_next_location_position()

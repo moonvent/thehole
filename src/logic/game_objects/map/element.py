@@ -1,3 +1,4 @@
+from enum import IntEnum
 from typing import NamedTuple
 
 from pygame import Rect
@@ -36,6 +37,17 @@ class RectTypes:
     BotHighGround = (Rect(0, 0, GameConstants.WidthMapElement, GameConstants.HeightMapElement - 65),)
 
 
+class ElementAvailability(IntEnum):
+    """
+        Действия при переходе на следующий элемент;
+
+    """
+    NoStep = 0
+    Step = 1
+    MapBorder = 2
+    Home = 3
+
+
 
 MapElements = {
                # 'a': MapElementLoadType('tileGrass_slope_half.png', DirectionsConsts.AllDirections),
@@ -47,7 +59,8 @@ MapElements = {
                Literals.d: MapElementLoadType('tileGrass_grass.png', DirectionsConsts.AllDirections, RectTypes.HalfHighGround, map_level=MapLevel.ElevationUp),
                Literals.e: MapElementLoadType(('grass.png',
                                                'foliageFewTree_green.png'), DirectionsConsts.AllDirections, RectTypes.AllRect),
-               # 'f': MapElementLoadType('tileGrass_slope.png'),
+               Literals.f: MapElementLoadType(('grass.png',
+                                              'few_trees_2.png'), DirectionsConsts.AllDirections, RectTypes.AllRect),
                Literals.g: MapElementLoadType('grass.png', DirectionsConsts.AllDirections, RectTypes.AllRect, ),
                Literals.h: MapElementLoadType('high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
                Literals.i: MapElementLoadType('bot_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.BotHighGround, map_level=MapLevel.ElevationUp),
@@ -55,16 +68,17 @@ MapElements = {
                Literals.k: MapElementLoadType('center_high_ground_green.png', DirectionsConsts.AllDirections, RectTypes.AllRect, map_level=MapLevel.ElevationUp),
                Literals.l: MapElementLoadType('big_tileGrass_slopeRight_grass.png', DirectionsConsts.AllDirections, RectTypes.AllRect, action_type=ActionType.lifting_down),
                Literals.m: MapElementLoadType('big_tileGrass_slopeLeft_grass.png', DirectionsConsts.AllDirections, RectTypes.AllRect, action_type=ActionType.lifting_up),
-               # 'm': MapElementLoadType('', ActionType.usual),
-               # 'n': MapElementLoadType('', ActionType.usual),
-               # 'o': MapElementLoadType('', ActionType.usual),
-               # 'p': MapElementLoadType('', ActionType.usual),
-               # 'q': MapElementLoadType('', ActionType.usual),
-               # 'r': MapElementLoadType('', ActionType.usual),
-               # 's': MapElementLoadType('', ActionType.usual),
-               # 't': MapElementLoadType('', ActionType.usual),
-               # 'u': MapElementLoadType('', ActionType.usual),
-               # 'v': MapElementLoadType('', ActionType.usual),
+               Literals.n: MapElementLoadType('hg_top_bot.png', DirectionsConsts.AllDirections, RectTypes.BotHighGround, map_level=MapLevel.ElevationUp),
+               Literals.o: MapElementLoadType('tileWater_with_grass_1.png', DirectionsConsts.NoWay, RectTypes.NoRect, map_level=MapLevel.ElevationDown),
+               Literals.p: MapElementLoadType('tileWater_with_grass_2.png', DirectionsConsts.NoWay, RectTypes.NoRect, map_level=MapLevel.ElevationDown),
+               Literals.q: MapElementLoadType('tileWater_with_grass_3.png', DirectionsConsts.NoWay, RectTypes.NoRect, map_level=MapLevel.ElevationDown),
+               Literals.r: MapElementLoadType('tileWater_with_water_4.png', DirectionsConsts.NoWay, RectTypes.NoRect, map_level=MapLevel.ElevationDown),
+               Literals.s: MapElementLoadType(('grass.png',
+                                               'few_trees_4.png'), DirectionsConsts.AllDirections, RectTypes.AllRect),
+               Literals.t: MapElementLoadType('roof_with_grass.png', DirectionsConsts.NoWay, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
+               Literals.u: MapElementLoadType('castle_center_wall.png', DirectionsConsts.NoWay, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
+               Literals.v: MapElementLoadType('wall.png', DirectionsConsts.NoWay, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
+               Literals.w: MapElementLoadType('roof.png', DirectionsConsts.NoWay, RectTypes.NoRect, map_level=MapLevel.ElevationUp),
                # 'w': MapElementLoadType('', ActionType.usual),
                # 'x': MapElementLoadType('', ActionType.usual),
                # 'y': MapElementLoadType('', ActionType.usual),

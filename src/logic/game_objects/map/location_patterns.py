@@ -15,15 +15,19 @@ class Literals:
     k = 'k'
     l = 'l'
     m = 'm'
-    # a = 'a'
-    # a = 'a'
-    # a = 'a'
-    # a = 'a'
-    # a = 'a'
-    # a = 'a'
-    # a = 'a'
-    # a = 'a'
-    # a = 'a'
+    n = 'n'
+    o = 'o'
+    p = 'p'
+    q = 'q'
+    r = 'r'
+    s = 's'
+    t = 't'
+    u = 'u'
+    v = 'v'
+    w = 'w'
+
+
+lcode = Literals
 
 
 class Sides:
@@ -88,19 +92,30 @@ class Locations:
 
 locations = Locations(locations=(
     Location(pattern=(
-        'ggbdddddcggggg',
-        'eggeggeggggggg',
-        'ggggmjgggggggg',
-        'gdgggkgggggggg',
-        'gdgggilggggggg',
+        'jnnnnnnnnnnnnn',
+        'kggeggeggggggg',
+        'kfggmjgggggggg',
+        'kjopqkopqropqr',
+        'kkgggklggggggg',
     ), sides=Sides.RightBottom,
         next_locations=(1, 2,)),
     Location(pattern=(
-        'gggggggggggggg',
-        'gggggggggggggg',
-        'gggggggggggggg',
-        'gggggggggggggg',
-        'gggggggggggggg',
+        'nnnnnnnnnnnnnj',
+        'ggggggggggwtwk',
+        'ggggggggggvuvk',
+        'opqropqropqgok',
+        'gggggggggggggi',
     ), sides=Sides.Left,
-        next_locations=(0,)),)
+        next_locations=(0,)),
+    Location(pattern=(
+        'iissskgggggggg',
+        'ssssskgggggggg',
+        'sssgmigggggggg',
+        'gggggggggggggg',
+        'gggggggggggggg',
+    ), sides=Sides.Top,
+        next_locations=(0,)),
+    )
 )
+
+
